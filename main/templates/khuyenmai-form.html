@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm/Sửa Khuyến Mãi</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+</head>
+<body>
+    <h2 th:text="${khuyenMai.maKM != null} ? 'Sửa Khuyến Mãi' : 'Thêm Khuyến Mãi'"></h2>
+
+    <form th:action="@{/khuyenmai/save}" th:object="${khuyenMai}" method="post">
+        <input type="hidden" th:field="*{maKM}" />
+
+        <label>Tên KM:</label>
+        <input type="text" th:field="*{tenKM}" required /><br/>
+
+        <label>% Giảm:</label>
+        <input type="number" th:field="*{phanTramGiam}" step="0.01" required /><br/>
+
+        <label>Ngày bắt đầu:</label>
+        <input type="date" th:field="*{ngayBatDau}" required /><br/>
+
+        <label>Ngày kết thúc:</label>
+        <input type="date" th:field="*{ngayKetThuc}" required /><br/>
+
+        <label>Mô tả:</label>
+        <textarea th:field="*{moTa}"></textarea><br/>
+
+        <button type="submit">Lưu</button>
+        <a th:href="@{/khuyenmai/list}">Hủy</a>
+    </form>
+</body>
+</html>

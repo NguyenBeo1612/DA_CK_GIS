@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm/Sửa Đơn Hàng</title>
+    <style>
+        /* CSS giữ nguyên của bạn */
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Poppins',sans-serif; }
+        body { background-color:#f4f1ec; color:#4a3b32; line-height:1.6; padding:20px; }
+        .donhang-form { background-color:#fff; padding:30px; border-radius:10px; max-width:900px; margin:auto; box-shadow:0 4px 12px rgba(93,64,55,0.15); border-top:5px solid #c08a52; }
+        .donhang-form h2 { color:#5d4037; text-align:center; margin-bottom:25px; font-size:28px; }
+        .donhang-form label { display:block; margin-bottom:5px; font-weight:600; color:#5d4037; }
+        .donhang-form input[type="text"], .donhang-form input[type="number"], .donhang-form select { width:100%; padding:10px 12px; margin-bottom:20px; border-radius:5px; border:1px solid #d6c7b5; background-color:#fff; color:#4a3b32; }
+        .donhang-form table { width:100%; border-collapse:collapse; margin-bottom:20px; background-color:#fff; border-radius:10px; overflow:hidden; box-shadow:0 4px 12px rgba(93,64,55,0.1); table-layout:fixed; }
+        .donhang-form table th, .donhang-form table td { padding:12px 10px; text-align:center; border-bottom:1px solid #d6c7b5; color:#4a3b32; }
+        .donhang-form table th { background-color:#5d4037; color:white; font-weight:700; }
+        .donhang-form table tr:nth-child(even) { background-color:#fcfcfc; }
+        .donhang-form table tr:hover { background-color:#fffaf5; }
+        .thanhTien { font-weight:600; color:#5d4037; }
+        .btn-add-row { background-color:#c08a52; border:2px solid #c08a52; color:white; padding:10px 20px; border-radius:8px; font-weight:600; cursor:pointer; transition:0.3s; }
+        .btn-add-row:hover { background-color:#a37243; }
+        .btn-remove-row { background-color:#b53a3a; color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; transition:0.3s; }
+        .btn-remove-row:hover { background-color:#922f2f; }
+        .donhang-form button[type="submit"] { background-color:#8a5a41; color:white; border:none; padding:12px 25px; font-size:15px; font-weight:600; border-radius:5px; cursor:pointer; transition:0.3s; }
+        .donhang-form button[type="submit"]:hover { background-color:#734a35; transform:translateY(-1px); }
+        .btn-cancel { background-color:#b53a3a; color:white; padding:12px 25px; border-radius:5px; font-weight:600; text-decoration:none; display:inline-block; margin-left:10px; transition:0.3s; }
+        .btn-cancel:hover { background-color:#922f2f; transform:translateY(-1px); }
+        @media (max-width:768px){.donhang-form{padding:20px;}.btn-add-row,.donhang-form button[type="submit"],.btn-cancel{width:100%;margin-bottom:10px;text-align:center;}}
+    </style>
+
+    <script>
+        function tinhThanhTien() {
+            let rows = document.querySelectorAll('.ct-row');
+            let tong = 0;
+            rows.forEach(row => {
+                let donGia = parseFloat(row.querySelector('.donGia').value) || 0;
+                let phuThu = parseFloat(row.querySelector('.phuThu').value) || 0;
+                let soLuong = parseInt(row.querySelector('.soLuong').value) || 0;
+                let thanhTien = (donGia + phuThu) * soLuong;
+                row.querySelector('.thanhTien').textContent = thanhTien.toFixed(0);
+                tong += thanhTien;
+            });
+
+            // Áp dụng khuyến mãi
+            let kmSelect = document.querySelector('select[name="maKM"]');
+            if (kmSelect && kmSelect.selectedOptions.length > 0) {
+                let giam = parseFloat(kmSelect.selectedOptions[0].dataset.phantram) || 0;
+                tong = tong * (1 - giam / 100);
+            }
+
+            document.getElementById('tongTien').textContent = tong.toFixed(0);
+        }
+
+        function updateDonGia(select) {
+            let donGia = parseFloat(select.selectedOptions[0].dataset.gia) || 0;
+            let coSize = select.selectedOptions[0].dataset.cosite === 'true';
+            let row = select.closest('tr');
+            row.querySelector('.donGia').value = donGia;
+
+            let sizeSelect = row.querySelector('select[name="maSize"]');
+            if (sizeSelect) {
+                sizeSelect.style.display = coSize ? 'inline-block' : 'none';
+                sizeSelect.value = '';
+                row.querySelector('.phuThu').value = 0;
+            }
+            tinhThanhTien();
+        }
+
+        function updatePhuThu(select) {
+            let phuThu = parseFloat(select.selectedOptions[0].dataset.giatang) || 0;
+            select.closest('tr').querySelector('.phuThu').value = phuThu;
+            tinhThanhTien();
+        }
+
+        function addRow() {
+            let tbody = document.querySelector('#ctBody');
+            let row = document.querySelector('#ctRowTemplate').cloneNode(true);
+            row.id = '';
+            row.style.display = '';
+            tbody.appendChild(row);
+        }
+
+        function removeRow(button) {
+            button.closest('tr').remove();
+            tinhThanhTien();
+        }
+    </script>
+</head>
+
+<body>
+<div class="donhang-form">
+    <h2 th:text="${donHang != null and donHang.maDon != null} ? 'Sửa Đơn Hàng' : 'Thêm Đơn Hàng'">Thêm Đơn Hàng</h2>
+
+    <form th:action="@{/donhang/save}" th:object="${donHang}" method="post">
+        <input type="hidden" th:field="*{maDon}"/>
+
+        <label>Khách hàng:</label>
+        <input list="khachHangList" name="khachHang" th:value="${donHang?.khachHang?.maKH}" required>
+        <datalist id="khachHangList">
+            <option th:each="kh : ${khachHangList}" th:value="${kh.maKH}" th:text="${kh.hoTen}"></option>
+        </datalist>
+
+        <label>Nhân viên:</label>
+        <select name="nhanVien" required>
+            <option th:each="nv : ${nhanVienList}" th:value="${nv.maNV}" th:text="${nv.hoTen}" th:selected="${donHang.nhanVien != null} ? ${donHang.nhanVien.maNV}==${nv.maNV} : false"></option>
+        </select>
+
+        <label>Ngày đặt:</label>
+        <input type="date"
+               th:value="${donHang != null && donHang.ngayDat != null} ? ${donHang.ngayDat} : ${T(java.time.LocalDate).now()}"
+               name="ngayDat" required>
+
+        <label>Khuyến mãi:</label>
+        <select name="maKM" onchange="tinhThanhTien()">
+            <option value="">--Không áp dụng--</option>
+            <option th:each="km : ${khuyenMaiList}" th:value="${km.maKM}" th:text="${km.tenKM} + ' (' + km.phanTramGiam + '%)'" th:data-phantram="${km.phanTramGiam}" th:selected="${donHang.khuyenMai != null} ? ${donHang.khuyenMai.maKM}==${km.maKM} : false"></option>
+        </select>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Món</th>
+                <th>Size</th>
+                <th>Đơn Giá</th>
+                <th>Phụ Thu</th>
+                <th>Số Lượng</th>
+                <th>Thành Tiền</th>
+                <th>Hành động</th>
+            </tr>
+            </thead>
+            <tbody id="ctBody">
+            <tr th:each="ct : ${donHang != null ? donHang.chiTietDonHang : {}}" class="ct-row">
+                <td>
+                    <select name="maMon" class="mon" onchange="updateDonGia(this)">
+                        <option value="">-- Chọn món --</option>
+                        <option th:each="mon : ${monList}" th:value="${mon.maMon}" th:text="${mon.tenMon}"
+                                th:data-gia="${mon.gia}" th:data-cosite="${mon.coSize}" th:selected="${ct.thucDon != null} ? ${ct.thucDon.maMon}==${mon.maMon} : false">
+                        </option>
+                    </select>
+                </td>
+                <td>
+                    <select name="maSize" onchange="updatePhuThu(this)">
+                        <option value="">Chọn size</option>
+                        <option th:each="size : ${sizes}" th:value="${size.maSize}" th:text="${size.tenSize + ' (+' + size.giaTang + ')'}" th:data-giatang="${size.giaTang}" th:selected="${ct.sizeMon != null} ? ${ct.sizeMon.maSize}==${size.maSize} : false"></option>
+                    </select>
+                </td>
+                <td><input type="number" class="donGia" th:value="${ct.donGia}" readonly></td>
+                <td><input type="number" class="phuThu" th:value="${ct.phuThu}" readonly></td>
+                <td><input type="number" name="soLuong" class="soLuong" th:value="${ct.soLuong}" onchange="tinhThanhTien()"></td>
+                <td><span class="thanhTien" th:text="${ct.thanhTien}">0</span></td>
+                <td><button type="button" class="btn-remove-row" onclick="removeRow(this)">Xóa</button></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Template row -->
+        <table style="display:none">
+            <tr id="ctRowTemplate" class="ct-row">
+                <td>
+                    <select name="maMon" class="mon" onchange="updateDonGia(this)">
+                        <option value="">-- Chọn món --</option>
+                        <option th:each="mon : ${monList}" th:value="${mon.maMon}" th:text="${mon.tenMon}" th:data-gia="${mon.gia}" th:data-cosite="${mon.coSize}"></option>
+                    </select>
+                </td>
+                <td>
+                    <select name="maSize" onchange="updatePhuThu(this)">
+                        <option value="">Chọn size</option>
+                        <option th:each="size : ${sizes}" th:value="${size.maSize}" th:text="${size.tenSize + ' (+' + size.giaTang + ')'}" th:data-giatang="${size.giaTang}"></option>
+                    </select>
+                </td>
+                <td><input type="number" class="donGia" value="0" readonly></td>
+                <td><input type="number" class="phuThu" value="0" readonly></td>
+                <td><input type="number" name="soLuong" class="soLuong" value="1" onchange="tinhThanhTien()"></td>
+                <td><span class="thanhTien">0</span></td>
+                <td><button type="button" class="btn-remove-row" onclick="removeRow(this)">Xóa</button></td>
+            </tr>
+        </table>
+
+        <button type="button" class="btn-add-row" onclick="addRow()">Thêm món</button>
+
+        <br><br>
+        <span class="tong-tien-label">Tổng tiền: <span id="tongTien">0</span></span>
+
+        <br><br>
+        <div>
+            <button type="submit">Lưu</button>
+            <a th:href="@{/donhang}" class="btn-cancel">Hủy</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Tính tổng khi load form
+    window.onload = tinhThanhTien;
+</script>
+
+</body>
+</html>

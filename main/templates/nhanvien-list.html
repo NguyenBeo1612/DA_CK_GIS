@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách nhân viên</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Danh sách nhân viên</h1>
+    </header>
+
+    <!-- Thông tin người dùng & nút -->
+    <div style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px;">
+        <p>
+            Xin chào <span th:text="${currentUser.hoTen}">Tên người dùng</span> 
+            (<span th:text="${currentUser.chucVu}">Chức vụ</span>)
+        </p>
+
+        <div>
+            <a th:href="@{/logout}" class="btn">Đăng xuất</a>
+            <a th:href="@{/quanli}" class="btn">Quay lại</a>
+            <span th:if="${isAdmin}">
+                <a th:href="@{/nhanvien/add}" class="btn">Thêm mới</a>
+            </span>
+        </div>
+    </div>
+
+    <!-- Bảng danh sách nhân viên -->
+    <table>
+        <thead>
+            <tr>
+                <th>Mã NV</th>
+                <th>Họ tên</th>
+                <th>Chức vụ</th>
+                <th>Trạng thái</th>
+                <th th:if="${isAdmin}">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="nv : ${nhanvienList}">
+                <td th:text="${nv.maNV}">1</td>
+                <td th:text="${nv.hoTen}">Nguyễn Văn A</td>
+                <td th:text="${nv.chucVu}">Nhân viên</td>
+                <td th:text="${nv.tinhTrang} ? 'Hoạt động' : 'Ngừng hoạt động'">Hoạt động</td>
+                <td th:if="${isAdmin}">
+                    <a th:href="@{'/nhanvien/edit/' + ${nv.maNV}}" class="btn btn-edit">Sửa</a>
+                    <a th:href="@{'/nhanvien/deactivate/' + ${nv.maNV}}"
+                       onclick="return confirm('Bạn có chắc muốn ngừng hoạt động nhân viên này không?');"
+                       class="btn btn-delete">Ngừng hoạt động</a>
+                        <a th:if="${nv.tinhTrang == false}" 
+               th:href="@{'/nhanvien/delete/' + ${nv.maNV}}" 
+               onclick="return confirm('Bạn có chắc muốn xóa không?');" 
+               class="btn btn-delete">Xóa</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

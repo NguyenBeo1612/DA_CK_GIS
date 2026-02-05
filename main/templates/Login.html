@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng Nhập</title>
+    <link rel="stylesheet" href="{% static 'main/css/login.css'%}">
+</head>
+<body>
+
+<div class="login-container">
+    <div class="login-box">
+
+        <h2>Đăng Nhập Hệ Thống</h2>
+
+        <form th:action="@{/login}" method="post">
+
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Nhập email" required>
+
+            <label>Mật khẩu</label>
+            <div class="password-wrapper">
+                <input type="password" id="password" name="matKhau" placeholder="Nhập mật khẩu" required>
+                <span class="toggle-btn" onclick="togglePassword()">👁</span>
+            </div>
+
+            <button type="submit" class="btn">Đăng Nhập</button>
+
+            <p class="error-message" th:text="${error}"></p>
+        </form>
+    </div>
+</div>
+
+<script>
+    function togglePassword() {
+        let pass = document.getElementById("password");
+        pass.type = pass.type === "password" ? "text" : "password";
+    }
+</script>
+
+</body>
+</html>

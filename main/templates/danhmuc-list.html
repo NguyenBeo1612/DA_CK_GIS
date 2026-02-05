@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh Mục</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Danh sách Danh Mục</h1>
+        </header>
+
+        <p th:if="${currentUser != null}">
+            Xin chào <span th:text="${currentUser.hoTen}"></span> 
+            (<span th:text="${currentUser.chucVu}"></span>)
+        </p>
+        
+        <div class="btn-group" style="display:flex; justify-content:flex-end; gap:10px; margin:15px 0;">
+            <a th:href="@{/logout}" class="btn">Đăng xuất</a>
+            <a th:href="@{/quanli}" class="btn">Quay lại</a>
+            <a th:href="@{/danhmuc/add}" class="btn" th:if="${isAdmin}">Thêm mới</a>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã Danh Mục</th>
+                    <th>Tên danh mục</th>
+                    
+                    <th th:if="${isAdmin}">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="dm : ${danhmucList}">
+                    <td th:text="${dm.maDanhMuc}"></td> 
+                    <td th:text="${dm.tenDanhMuc}"></td>
+                    
+                    <td th:if="${isAdmin}">
+                        <div class="action-buttons">
+                            <a th:href="@{'/danhmuc/edit/' + ${dm.maDanhMuc}}" class="btn btn-edit">Sửa</a> 
+                            <a th:href="@{'/danhmuc/delete/' + ${dm.maDanhMuc}}" class="btn btn-delete"
+                               onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

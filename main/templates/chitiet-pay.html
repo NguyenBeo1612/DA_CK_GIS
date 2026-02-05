@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh Toán Đơn Hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body { background: #f4f7f9; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        h2 { text-align: center; margin-bottom: 25px; color: #3f51b5; }
+        .total { background: #e8eaf6; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .total p { margin: 5px 0; }
+        #change-display { font-size: 22px; font-weight: 700; margin-top: 10px; padding: 10px; text-align: center; border-radius: 8px; border: 2px dashed #28a745; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2><i class="fas fa-hand-holding-usd"></i> Xác Nhận Thanh Toán</h2>
+
+    <div class="total">
+        <p>Tạm tính (chưa VAT): <b th:text="${tamTinh} + ' VNĐ'">0 VNĐ</b></p>
+        <p>VAT (10%): <b th:text="${vat} + ' VNĐ'">0 VNĐ</b></p>
+        <p th:if="${khuyenMaiText != ''}">Khuyến mãi: <b th:text="${khuyenMaiText}">KM 20%</b></p>
+        <p>Giảm: <b th:text="${giamGia} + ' VNĐ'">0 VNĐ</b></p>
+        <hr>
+        <p>Tổng thanh toán: <b th:text="${tongTien} + ' VNĐ'">0 VNĐ</b></p>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Phương thức thanh toán:</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="method" id="cash" value="cash" checked onclick="toggleMethod()">
+            <label class="form-check-label" for="cash"><i class="fas fa-money-bill-wave"></i> Tiền mặt</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="method" id="bank" value="bank" onclick="toggleMethod()">
+            <label class="form-check-label" for="bank"><i class="fas fa-qrcode"></i> Chuyển khoản</label>
+        </div>
+    </div>
+
+    <div id="cash-section" class="mb-3">
+        <label class="form-label">Tiền khách đưa (VNĐ):</label>
+        <input type="number" class="form-control" id="cash-input" oninput="calcChange()">
+        <div id="change-display">0 VNĐ</div>
+    </div>
+
+    <div id="bank-section" class="mb-3" style="display:none;">
+        <label class="form-label">Chọn ngân hàng / ví:</label>
+        <select id="bank-select" class="form-select">
+            <option value="">-- Chọn ngân hàng/ví --</option>
+            <option value="Momo">Momo</option>
+            <option value="ZaloPay">ZaloPay</option>
+            <option value="VNPay">VNPay</option>
+            <option value="ShopeePay">ShopeePay</option>
+        </select>
+        <p class="text-info mt-2"><i class="fas fa-info-circle"></i> Khách quét QR hoặc chuyển khoản</p>
+    </div>
+
+    <form th:action="@{/chitiet/pay}" method="post">
+        <input type="hidden" name="maDon" th:value="${donHang.maDon}">
+        <input type="hidden" name="phuongThuc" id="method-hidden" value="cash">
+        <input type="hidden" name="tienKhachDua" id="tien-hidden" value="0">
+        <input type="hidden" name="nganHang" id="bank-hidden" value="">
+        <button type="submit" class="btn btn-primary w-100 mt-3">Xác nhận thanh toán</button>
+    </form>
+</div>
+
+<script th:inline="javascript">
+    let total = /*[[${tongTien}]]*/ 0;
+
+    function toggleMethod() {
+        const method = document.querySelector('input[name="method"]:checked').value;
+        document.getElementById('method-hidden').value = method;
+        if (method === 'cash') {
+            document.getElementById('cash-section').style.display = 'block';
+            document.getElementById('bank-section').style.display = 'none';
+            document.getElementById('cash-input').value = total;
+            calcChange();
+        } else {
+            document.getElementById('cash-section').style.display = 'none';
+            document.getElementById('bank-section').style.display = 'block';
+            document.getElementById('change-display').innerText = '0 VNĐ';
+            document.getElementById('tien-hidden').value = total;
+        }
+    }
+
+    function calcChange() {
+        const cash = parseInt(document.getElementById('cash-input').value) || 0;
+        document.getElementById('tien-hidden').value = cash;
+        let change = cash - total;
+        const display = document.getElementById('change-display');
+        if (change >= 0) {
+            display.innerText = change.toLocaleString('vi-VN') + ' VNĐ';
+            display.style.color = '#28a745';
+            display.style.borderColor = '#28a745';
+        } else {
+            display.innerText = (change * -1).toLocaleString('vi-VN') + ' VNĐ (Còn thiếu)';
+            display.style.color = '#dc3545';
+            display.style.borderColor = '#dc3545';
+        }
+    }
+
+    document.getElementById('bank-select').addEventListener('change', function() {
+        document.getElementById('bank-hidden').value = this.value;
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('cash-input').value = total;
+        document.getElementById('tien-hidden').value = total;
+        calcChange();
+    });
+</script>
+</body>
+</html>

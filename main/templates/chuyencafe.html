@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chuyện Cà Phê - Mao Coffee</title>
+    <link rel="stylesheet" href="{% static 'main/css/chuyenca.css'%}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container">
+        <h1 class="logo">☕ Mao Coffee</h1>
+        <nav class="nav">
+            <a href="/" >Trang chủ</a>
+            <a href="/vechungtoi">Về chúng tôi</a>
+            <a href="/chuyencafe" class="active">Chuyện cà phê</a>
+        </nav>
+    </div>
+</header>
+
+<!-- BANNER -->
+<section class="banner">
+    <div class="banner-content">
+        <h2>Chuyện cà phê</h2>
+        <p>Khám phá những câu chuyện đằng sau từng tách cà phê, từ hạt cà phê tới bàn của bạn.</p>
+    </div>
+</section>
+
+<!-- CHUYỆN CÀ PHÊ -->
+<section class="story">
+    <div class="container">
+        <div class="story-list">
+            <div class="card">
+                <img class="story-img" src="/images/chuyen1.jpg" alt="Câu chuyện 1">
+                <h3>Hành trình hạt Arabica</h3>
+                <p>Từ những vùng đất cao nguyên đầy nắng, hạt Arabica được chọn lựa kỹ càng để mang đến hương vị tinh túy nhất.</p>
+            </div>
+            <div class="card">
+                <img class="story-img" src="/images/chuyen2.jpg" alt="Câu chuyện 2">
+                <h3>Người nông dân và niềm đam mê</h3>
+                <p>Những người nông dân tỉ mỉ chăm sóc từng cây cà phê, đảm bảo chất lượng từ hạt đến tách cà phê của bạn.</p>
+            </div>
+            <div class="card">
+                <img class="story-img" src="/images/chuyen3.jpg" alt="Câu chuyện 3">
+                <h3>Không gian thưởng thức</h3>
+                <p>Mỗi quán Mao Coffee đều tạo không gian thư giãn, nơi bạn có thể thưởng thức hương cà phê nguyên chất.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container footer-grid">
+        <div class="footer-col">
+            <h3>GIỚI THIỆU</h3>
+            <a href="/vechungtoi">Về Chúng Tôi</a>
+            <a href="/thucdon">Sản phẩm</a>
+            <a href="#">Khuyến mãi</a>
+        </div>
+        <div class="footer-col">
+            <h3>ĐIỀU KHOẢN</h3>
+            <a href="#">Điều khoản sử dụng</a>
+            <a href="#">Chính sách bảo mật thông tin</a>
+        </div>
+        <div class="footer-col contact-info">
+            <h3>© 2025 MAO COFFEE</h3>
+            <p><strong>VPĐD:</strong> Tầng 6, Tòa nhà Mao, Số 315 P. Khương Mai, Q. Thanh Xuân, TP Hà Nội</p>
+            <p><strong>Đặt hàng:</strong> 1800 6936</p>
+            <p><strong>Email:</strong> support.hn@maocoffee.com.vn</p>
+        </div>
+        <div class="footer-col follow-us">
+            <h3>THE MAO COFFEE</h3>
+            <p class="follow-text">Share</p>
+            <div class="social-icons">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="Youtube"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2025 Mao Coffee | Hương vị của niềm đam mê ☕</p>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Đơn Hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <p th:if="${currentUser != null}">
+        Xin chào <span th:text="${currentUser.hoTen}"></span> 
+        (<span th:text="${currentUser.chucVu}"></span>)
+    </p>
+    <style>
+        .container { margin-top: 30px; }
+        h1 { color: #3f51b5; margin-bottom: 25px; font-weight: 700; }
+        .table-custom thead th { background-color: #3f51b5; color: white; font-size: 0.9rem; text-transform: uppercase; }
+        .table-custom tbody tr:hover { background-color: #f0f4f7; }
+        .badge-status-paid { background-color: #28a745; color: white; }
+        .badge-status-pending { background-color: #dc3545; color: white; }
+        .text-currency { font-size: 1.1em; color: #28a745; }
+        .product-image { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 8px; }
+        .list-unstyled li { display: flex; align-items: center; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1><i class="fas fa-receipt me-2"></i> Danh Sách Đơn Hàng</h1>
+
+    <div class="mb-4 d-flex justify-content-start gap-3">
+        <a th:href="@{/quanli}" class="btn btn-success"><i class="fas fa-arrow-left me-1"></i> Quay lại Menu</a>
+        <a th:href="@{/donhang/add}" class="btn btn-info"><i class="fas fa-plus me-1"></i> Thêm Đơn Hàng Mới</a>
+        <a th:href="@{/chitiet}" class="btn btn-primary"><i class="fas fa-cash-register me-1"></i> Mở POS Thanh Toán</a>
+        <a th:href="@{/logout}" class="btn btn-danger"><i class="fas fa-sign-out-alt me-1"></i> Đăng xuất</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle table-custom">
+            <thead>
+                <tr class="text-center">
+                    <th style="width: 5%;">STT</th>
+                    <th style="width: 10%;">Mã đơn</th>
+                    <th style="width: 15%;">Khách hàng</th>
+                    <th style="width: 15%;">Nhân viên</th>
+                    <th style="width: 15%;">Ngày đặt</th>
+                    <th style="width: 10%;">Trạng thái</th>
+                    <th style="width: 10%;">Tổng tiền (VNĐ)</th>
+                    <th style="width: 15%;">Chi tiết món</th>
+                    <th style="width: 10%;">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="donHang, iterStat : ${donHangList}">
+                    <td class="text-center" th:text="${iterStat.index + 1}">1</td>
+                    <td class="fw-bold" th:text="${donHang.maDon}">1001</td>
+                    <td>
+                        <span class="badge bg-secondary" th:text="${donHang.khachHang?.hoTen ?: 'Khách lẻ'}">Nguyễn Văn A</span>
+                    </td>
+                    <td th:text="${donHang.nhanVien?.hoTen}">Trần Thị B</td>
+                    <td th:text="${#temporals.format(donHang.ngayDat, 'dd/MM/yyyy HH:mm')}">25/11/2025 13:00</td>
+                    <td class="text-center">
+                        <span th:text="${donHang.trangThai}" 
+                              th:classappend="${donHang.trangThai == 'DA_THANH_TOAN' ? 'badge-status-paid' : 'badge-status-pending'}"
+                              class="badge">CHUA_THANH_TOAN</span>
+                    </td>
+                    <td class="text-end fw-bolder text-currency" th:text="${#numbers.formatInteger(donHang.tongTien, 0, 'POINT')}">141.900</td>
+                    <td>
+                        <ul class="list-unstyled mb-0 small">
+                            <li th:each="ct : ${donHang.chiTietDonHang}">
+                                <img th:src="@{/images/hinhAnh/{filename}(filename=${ct.thucDon.hinhAnh})}" 
+                                     alt="Ảnh món ăn" 
+                                     class="product-image me-2"
+                                     th:unless="${ct.thucDon.hinhAnh == null or ct.thucDon.hinhAnh == ''}" />
+                                <span th:text="${ct.thucDon.tenMon + (ct.sizeMon != null ? ' (' + ct.sizeMon.tenSize + ')' : '') + ' x' + ct.soLuong}">Nước ép cam (M) x1</span>
+                            </li>
+                        </ul>
+                    </td>
+                    <td class="text-center">
+                        <div th:if="${isAdmin or (currentUser != null and donHang.nhanVien?.maNV == currentUser.maNV)}">
+                            <a th:href="@{'/donhang/edit/' + ${donHang.maDon}}" class="btn btn-warning btn-sm me-1" title="Sửa Đơn"><i class="fas fa-edit"></i></a>
+                            <a th:href="@{'/donhang/delete/' + ${donHang.maDon}}" 
+                               onclick="return confirm('Xác nhận xóa đơn hàng?');" 
+                               class="btn btn-danger btn-sm" title="Xóa Đơn"><i class="fas fa-trash-alt"></i></a>
+                        </div>
+                        <div th:unless="${isAdmin or (currentUser != null and donHang.nhanVien?.maNV == currentUser.maNV)}">
+                            <span class="badge bg-secondary">Xem</span>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${donHangList.isEmpty()}">
+                    <td colspan="9" class="text-center text-muted p-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Không tìm thấy đơn hàng nào phù hợp.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

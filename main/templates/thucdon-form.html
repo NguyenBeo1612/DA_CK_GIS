@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm / Sửa Món</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+</head>
+<body>
+<div class="container">
+    <h1 th:text="${thucdon.maMon != null} ? 'Sửa Món' : 'Thêm Món Mới'"></h1>
+
+    <form th:object="${thucdon}" method="post"
+          th:action="${thucdon.maMon != null} ? @{'/thucdon/edit/' + ${thucdon.maMon}} : @{'/thucdon/add'}"
+          enctype="multipart/form-data">
+
+        <!-- Tên món -->
+        <div>
+            <label>Tên Món:</label>
+            <input type="text" th:field="*{tenMon}" placeholder="Nhập tên món" required/>
+        </div>
+
+        <!-- Danh mục -->
+        <div>
+            <label>Danh Mục:</label>
+            <select th:field="*{danhMuc.maDanhMuc}" required>
+                <option value="">-- Chọn danh mục --</option>
+                <option th:each="dm : ${danhmucList}"
+                        th:value="${dm.maDanhMuc}"
+                        th:text="${dm.tenDanhMuc}"
+                        th:selected="${thucdon.danhMuc != null and thucdon.danhMuc.maDanhMuc == dm.maDanhMuc}">
+                </option>
+            </select>
+        </div>
+
+        <!-- Mô tả -->
+        <div>
+            <label>Mô tả:</label>
+            <textarea th:field="*{moTa}" rows="3" placeholder="Mô tả món"></textarea>
+        </div>
+
+        <!-- Giá -->
+        <div>
+            <label>Giá:</label>
+            <input type="number" th:field="*{gia}" min="0" step="1000" required/>
+        </div>
+
+        <!-- Có size -->
+        <div>
+            <label>Món có size:</label>
+            <input type="checkbox" th:field="*{coSize}"/> Có nhiều size (S, M, L)
+        </div>
+
+        <!-- Tình trạng -->
+        <div>
+            <label>Tình trạng:</label>
+            <select th:field="*{tinhTrang}">
+                <option th:value="true" th:text="'Đang bán'" 
+                    th:selected="${thucdon.tinhTrang == true}"></option>
+                <option th:value="false" th:text="'Ngừng bán'" 
+                    th:selected="${thucdon.tinhTrang == false}"></option>
+            </select>
+        </div>
+
+        <!-- Sản phẩm nổi bật -->
+        <div>
+            <label>Sản phẩm nổi bật:</label>
+            <select th:field="*{sanPhamNoiBat}">
+                <option th:value="true" th:text="'Có'" th:selected="${thucdon.sanPhamNoiBat == true}"></option>
+                <option th:value="false" th:text="'Không'" th:selected="${thucdon.sanPhamNoiBat == false}"></option>
+            </select>
+        </div>
+
+        <!-- Hình ảnh -->
+        <div>
+            <label>Hình Ảnh:</label>
+            <input type="file" name="hinhAnhFile" accept="image/*"/>
+            <div th:if="${thucdon.hinhAnh != null}">
+                <p>Ảnh hiện tại:</p>
+                <img th:src="@{/images/hinhAnh/{img}(img=${thucdon.hinhAnh},v=${thucdon.maMon})}"
+                     alt="Hình món"
+                     style="width:120px;height:120px;object-fit:cover;border-radius:8px;margin-top:5px;">
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div style="margin-top:15px;">
+            <button type="submit" class="btn">Lưu Món</button>
+            <a th:href="@{/thucdon}" class="btn">Hủy</a>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mao Coffee - Quản lý</title>
+    <link rel="stylesheet" href="{% static 'main/css/index.css' %}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>Mao Coffee</h2>
+        <a href="/" class="active">Tổng quan</a>
+        <a href="/danhmuc/list/">Danh mục</a>
+        <a href="/thucdon/list/">Thực đơn</a>
+        <a href="/khachhang/list/">Khách hàng</a>
+        <a href="/nhanvien/list/">Nhân viên</a>
+        <a href="/donhang/list/">Đơn hàng</a>
+        <a href="/khuyenmai/list/">Khuyến mãi</a>
+        <a href="/Danhthu/">Doanh thu</a>
+    </div>
+    
+
+<!-- Main content -->
+<div class="main">
+    <!-- Header -->
+    <div class="header" th:if="${currentUser != null}">
+        <div>Chào mừng, <span th:text="${currentUser.hoTen}">User</span>!</div>
+        <form class="search-form" th:action="@{/timkiem}" method="get">
+            <input type="text" name="query" th:value="${keyword}" placeholder="Tìm danh mục, món, khách, nhân viên..."/>
+            <button type="submit" class="btn">Search</button>
+        </form>
+    </div>
+
+    <!-- Dashboard cards -->
+    <section class="dashboard" th:if="${currentUser != null}">
+        <div class="card">
+            <h3>Tổng danh mục</h3>
+            <p th:text="${totalCategories}">0</p>
+        </div>
+        <div class="card">
+            <h3>Tổng món</h3>
+            <p th:text="${totalProducts}">0</p>
+        </div>
+        <div class="card">
+            <h3>Tổng khách hàng</h3>
+            <p th:text="${totalCustomers}">0</p>
+        </div>
+        <div class="card">
+            <h3>Tổng nhân viên</h3>
+            <p th:text="${totalEmployees}">0</p>
+        </div>
+        <div class="card">
+            <h3>Doanh thu hôm nay</h3>
+            <p th:text="${#numbers.formatDecimal(doanhThuHomNay,0,'POINT',0,'COMMA')} + ' VNĐ'">0 VNĐ</p>
+        </div>
+    </section>
+
+    <!-- Featured products -->
+    <!-- Featured products -->
+<section class="featured" th:if="${currentUser != null}">
+    <h2>Sản phẩm nổi bật</h2>
+    <div class="product-list">
+        <div th:each="item : ${sanPhamNoiBat}" class="product-card">
+            <img th:src="@{'/images/hinhAnh/' + ${item.hinhAnh}}" alt="Ảnh sản phẩm">
+            <h3 th:text="${item.tenMon}">Tên món</h3>
+            <p th:text="${item.moTa}">Mô tả món</p>
+            <p class="price" th:text="${#numbers.formatDecimal(item.gia,0,'POINT',0,'COMMA')} + ' VNĐ'">0 VNĐ</p>
+        </div>
+    </div>
+</section>
+
+<!-- Container chứa 2 biểu đồ -->
+<div class="charts-container" th:if="${currentUser != null}">
+    <section class="charts">
+        <h2>Thống kê số lượng món bán</h2>
+        <canvas id="chartSoLuongMon"></canvas>
+    </section>
+
+    <section class="charts">
+        <h2>Thống kê doanh thu theo ngày</h2>
+        <canvas id="chartDoanhThu"></canvas>
+    </section>
+</div>
+
+
+    <footer th:if="${currentUser != null}">
+        © 2025 Mao Coffee | quản lý quán cafe
+    </footer>
+</div>
+
+<script th:inline="javascript">
+    /* Biểu đồ số lượng món bán */
+    const soLuongLabels = /*[[${soLuongMonBanLabels}]]*/ [];
+    const soLuongData = /*[[${soLuongMonBanData}]]*/ [];
+
+    new Chart(document.getElementById('chartSoLuongMon'), {
+        type: 'bar',
+        data: {
+            labels: soLuongLabels,
+            datasets: [{
+                label: 'Số lượng',
+                data: soLuongData,
+                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    /* Biểu đồ doanh thu */
+    const doanhThuLabels = /*[[${doanhThuLabels}]]*/ [];
+    const doanhThuData = /*[[${doanhThuData}]]*/ [];
+
+    new Chart(document.getElementById('chartDoanhThu'), {
+        type: 'line',
+        data: {
+            labels: doanhThuLabels,
+            datasets: [{
+                label: 'Doanh thu (VNĐ)',
+                data: doanhThuData,
+                fill: true,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+
+</body>
+</html>

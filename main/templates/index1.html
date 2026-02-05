@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Trang chủ - Mao Coffee</title>
+    <link rel="stylesheet" href="{% static 'main/css/index1.css' %}">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+</head>
+<body>
+<!-- ====================== THÔNG BÁO ====================== -->
+<div th:if="${message}" class="message-box">
+    <p th:text="${message}"></p>
+</div>
+
+<!-- ====================== HEADER ====================== -->
+<header class="header">
+    <div class="container header-flex">
+
+        <h1 class="logo">☕ Mao Coffee</h1>
+
+        <nav class="nav">
+
+            <a href="/" class="active">Trang chủ</a>
+            <a href="/chi_nhanh_gis">Chi nhánh</a>
+
+            <!-- Nếu đã đăng nhập -->
+            <th:block th:if="${currentUser != null}">
+                <a href="/quanli">Quản lí</a>
+            </th:block>
+
+            <th:block th:if="${currentUser != null}">
+                <a href="/oder">Other</a>
+            </th:block>
+
+
+            <!-- Chưa đăng nhập -->
+            <th:block th:if="${currentUser == null}">
+                <a href="/login">Đăng nhập</a>
+            </th:block>
+
+            <!-- Đang đăng nhập -->
+            <th:block th:if="${currentUser != null}">
+                <span class="user-info">
+                    👤 <span th:text="${currentUser.hoTen}">User</span>
+                    (<span th:text="${currentUser.chucVu}">Chức vụ</span>)
+                </span>
+            </th:block>
+
+        </nav>
+    </div>
+</header>
+
+        <!-- ====================== SEARCH THỰC ĐƠN ====================== -->
+<!-- ====================== SEARCH TẤT CẢ ====================== -->
+<section class="search-section">
+    <div class="container" style="margin: 20px 0; display:flex; justify-content:center;">
+        <form th:action="@{/timkiem}" method="get" style="display:flex; gap:5px; width:100%; max-width:600px;">
+            <input type="text" name="query" th:value="${query}" placeholder="Tìm danh mục, món, khách, nhân viên..." />
+            <button type="submit" class="btn">Tìm kiếm</button>
+        </form>
+    </div>
+</section>
+
+        
+<!-- ====================== BANNER ====================== -->
+
+<section class="banner">
+    <div class="banner-content">
+        <h2>Chào mừng đến với Mao Coffee!</h2>
+        <p>Khám phá hương vị đậm đà và không gian thư giãn dành riêng cho bạn.</p>
+        <a href="/thucdon/list/" class="btn">Xem Thực Đơn</a>
+    </div>
+</section>
+
+<!-- ====================== ABOUT ====================== -->
+<section class="about">
+    <div class="container">
+        <h2>Về Mao Coffee</h2>
+        <p>
+            Mao Coffee mang đến trải nghiệm cà phê chất lượng cao, với nguồn nguyên liệu tuyển chọn từ
+            Arabica và Robusta ở những nông trại tốt nhất. Chúng tôi mong muốn tạo ra không gian nhẹ nhàng,
+            nơi bạn có thể thư giãn, làm việc hoặc gặp gỡ bạn bè.
+        </p>
+    </div>
+</section>
+
+<!-- ====================== FEATURED PRODUCTS ====================== -->
+<section class="featured">
+    <div class="container">
+        <h2>☕ Thức uống nổi bật ☕</h2>
+
+        <div class="product-list">
+            <div th:each="item : ${sanPhamNoiBat}" class="product-card">
+
+                <img th:src="@{'/images/hinhAnh/' + ${item.hinhAnh}}"
+                     alt="Ảnh sản phẩm"
+                     class="product-img">
+
+                <h3 th:text="${item.tenMon}"></h3>
+                <p th:text="${item.moTa}"></p>
+
+                <p class="price">
+                    <b>Giá:</b>
+                    <span th:text="${#numbers.formatDecimal(item.gia,0,'POINT',0,'COMMA')}"></span> VNĐ
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ====================== FOOTER ====================== -->
+<footer class="footer">
+
+    <div class="container footer-grid">
+
+        <!-- Col 1 -->
+        <div class="footer-col">
+            <h3>GIỚI THIỆU</h3>
+            <a href="/vechungtoi">Về Chúng Tôi</a>
+            <a href="/thucdon">Sản phẩm</a>
+            <a href="/khuyenmai">Khuyến mãi</a>
+            <a href="/chuyencafe">Chuyện cà phê</a>
+            <a href="#">Tuyển dụng</a>
+        </div>
+
+        <!-- Col 2 -->
+        <div class="footer-col">
+            <h3>ĐIỀU KHOẢN</h3>
+            <a href="#">Điều khoản sử dụng</a>
+            <a href="#">Chính sách bảo mật</a>
+            <a href="#">Hóa đơn GTGT</a>
+        </div>
+
+        <!-- Col 3 -->
+        <div class="footer-col contact-info">
+            <h3>© 2025 MAO COFFEE</h3>
+            <p><strong>VPĐD:</strong> 315 Khương Mai, Thanh Xuân, Hà Nội</p>
+            <p><strong>Hotline:</strong> 1800 6936</p>
+            <p><strong>Email:</strong> support.hn@maocoffee.com.vn</p>
+        </div>
+
+        <!-- Col 4 -->
+        <div class="footer-col follow-us">
+            <h3>KẾT NỐI</h3>
+            <p class="follow-text">Share</p>
+
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>© 2025 Mao Coffee | Hương vị của niềm đam mê ☕</p>
+    </div>
+
+</footer>
+
+</body>
+</html>

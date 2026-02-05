@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>⚠️ Thông báo lỗi</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #fff8f0; }
+        h2 { color: red; font-size: 28px; }
+        p { font-size: 20px; margin-top: 20px; }
+        a { display: inline-block; margin-top: 30px; text-decoration: none; background: #4CAF50; color: white; padding: 10px 20px; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>⚠️ Lỗi quyền truy cập</h2>
+    <p th:text="${errorMessage}">Bạn không có quyền truy cập trang này hihi 😆</p>
+    <a th:href="@{/quanli}">Quay về quản lý</a>
+</body>
+</html>

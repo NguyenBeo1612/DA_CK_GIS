@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Form Chi Tiết Đơn Hàng</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+</head>
+<body>
+<h2 th:text="${chiTiet.maChiTiet != null} ? 'Sửa Chi Tiết' : 'Thêm Chi Tiết'"></h2>
+
+<form th:action="@{/chitiet/save}" th:object="${chiTiet}" method="post">
+    <input type="hidden" th:field="*{maChiTiet}" />
+
+    <label>Đơn Hàng:</label>
+    <select th:field="*{donHang.maDon}">
+        <option th:each="dh : ${donHangList}" th:value="${dh.maDon}" th:text="${dh.maDon}"></option>
+    </select>
+    <br/>
+
+    <label>Món:</label>
+    <select th:field="*{thucDon.maMon}">
+        <option th:each="mon : ${thucDonList}" th:value="${mon.maMon}" th:text="${mon.tenMon}"></option>
+    </select>
+    <br/>
+
+    <label>Số Lượng:</label>
+    <input type="number" min="1" th:field="*{soLuong}" />
+    <br/>
+
+    <button type="submit">Lưu</button>
+</form>
+
+<a th:href="@{/chitiet/list/{maDon}(maDon=${chiTiet.donHang.maDon})}">Quay Lại</a>
+</body>
+</html>

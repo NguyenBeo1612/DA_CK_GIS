@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Doanh Thu & Hiệu Suất Nhân Viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #3f51b5; /* Indigo */
+            --background-light: #f4f6f9;
+            --danger-color: #dc3545; /* Đỏ cho Đăng Xuất */
+        }
+
+        body {
+            background-color: var(--background-light);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .summary-card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            color: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); 
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+        }
+        .card-icon-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            opacity: 0.15;
+            font-size: 6rem;
+            line-height: 1;
+        }
+        .bg-gradient-blue { background: linear-gradient(45deg, #42a5f5, #1e88e5); }
+        .bg-gradient-orange { background: linear-gradient(45deg, #ffb300, #fb8c00); }
+        .bg-gradient-green { background: linear-gradient(45deg, #66bb6a, #43a047); }
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0;
+            z-index: 1;
+        }
+        .card-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .card-detail {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        .table-doanhthu th {
+            background-color: var(--primary-color);
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        .table-doanhthu tfoot tr {
+            background-color: #e8eaf6;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        
+        /* Bộ Lọc */
+        .filter-btn {
+            font-weight: 600;
+            border-radius: 0;
+        }
+        .filter-btn.active {
+            background-color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+            color: white !important;
+            box-shadow: 0 3px 6px rgba(63, 81, 181, 0.4);
+        }
+        .custom-filter-group .btn-group {
+            border-radius: 20px 0 0 20px;
+            overflow: hidden;
+        }
+        .custom-select-year, .custom-select-nv { /* Định dạng chung cho 2 dropdown */
+            border-radius: 0 !important;
+            border-left: none !important;
+            font-size: 0.9rem;
+        }
+        .custom-select-nv {
+            border-radius: 0 20px 20px 0 !important; /* Làm tròn góc cuối cùng */
+        }
+        /* Style cho nút hành động mới */
+        .action-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .btn-home {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .btn-home:hover {
+            background-color: #303f9f; /* Indigo đậm hơn */
+            color: white;
+        }
+        .btn-logout {
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .btn-logout:hover {
+            background-color: #c82333; /* Đỏ đậm hơn */
+            color: white;
+        }
+
+    </style>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        function applyFilters() {
+            var currentUrl = new URL(window.location.href);
+            var selectedYear = document.getElementById('yearFilter').value;
+            var selectedMaNV = document.getElementById('nvFilter').value; 
+            var currentFilter = currentUrl.searchParams.get('filter') || 'ngay';
+            
+            // Xóa các tham số cũ
+            currentUrl.searchParams.delete('year');
+            currentUrl.searchParams.delete('maNV');
+            currentUrl.searchParams.delete('filter'); 
+
+            // Thêm tham số mới
+            currentUrl.searchParams.append('filter', currentFilter);
+            
+            if (selectedYear !== 'all' && currentFilter !== 'nam') {
+                currentUrl.searchParams.append('year', selectedYear);
+            }
+            if (selectedMaNV !== 'all') { // Áp dụng lọc NV
+                currentUrl.searchParams.append('maNV', selectedMaNV);
+            }
+            
+            window.location.href = currentUrl.toString();
+        }
+        
+        function changeFilter(newFilter) {
+            var currentUrl = new URL(window.location.href);
+            
+            // Giữ lại giá trị lọc NV hiện tại
+            var selectedMaNV = document.getElementById('nvFilter') ? document.getElementById('nvFilter').value : 'all';
+            
+            currentUrl.searchParams.delete('filter');
+            currentUrl.searchParams.delete('year');
+            currentUrl.searchParams.delete('maNV');
+            
+            currentUrl.searchParams.append('filter', newFilter);
+            
+            // Giữ lại năm nếu không phải là filter='nam'
+            var selectedYear = document.getElementById('yearFilter') ? document.getElementById('yearFilter').value : 'all';
+            if (newFilter !== 'nam' && selectedYear !== 'all') {
+                 currentUrl.searchParams.append('year', selectedYear);
+            }
+            
+            // Luôn giữ lại lọc NV (áp dụng cho mọi chế độ lọc)
+            if (selectedMaNV !== 'all') {
+                 currentUrl.searchParams.append('maNV', selectedMaNV);
+            }
+
+            window.location.href = currentUrl.toString();
+        }
+        /*]]>*/
+    </script>
+</head>
+<body>
+
+<div class="container-fluid py-4 position-relative">
+    
+    <div class="action-buttons d-flex gap-2">
+        <a th:href="@{/quanli}" class="btn btn-home shadow-sm">
+            <i class="fas fa-home me-1"></i> Quay Lại
+        </a>
+        <a th:href="@{/logout}" class="btn btn-logout shadow-sm">
+            <i class="fas fa-sign-out-alt me-1"></i> Đăng Xuất
+        </a>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="text-primary fw-bolder">🎯 Tổng Hợp Doanh Thu Cửa Hàng</h1>
+            <p class="text-muted">Chào mừng Quản Lý <span th:if="${currentUser != null}" th:text="${currentUser.hoTen}"></span>. Bạn có thể lọc báo cáo theo Thời gian và Nhân viên.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4 justify-content-center">
+        <div class="col-lg-10 col-md-12">
+            <div class="input-group custom-filter-group">
+                <div class="btn-group" role="group" aria-label="Lọc Doanh Thu">
+                    <button type="button" onclick="changeFilter('ngay')"
+                       class="btn btn-outline-primary filter-btn"
+                       th:classappend="${filter == 'ngay' ? 'active' : ''}">
+                        <i class="fas fa-calendar-day me-1"></i>Ngày
+                    </button>
+                    <button type="button" onclick="changeFilter('tuan')"
+                       class="btn btn-outline-primary filter-btn"
+                       th:classappend="${filter == 'tuan' ? 'active' : ''}">
+                        <i class="fas fa-calendar-week me-1"></i>Tuần
+                    </button>
+                    <button type="button" onclick="changeFilter('thang')"
+                       class="btn btn-outline-primary filter-btn"
+                       th:classappend="${filter == 'thang' ? 'active' : ''}">
+                        <i class="fas fa-calendar-alt me-1"></i>Tháng
+                    </button>
+                    <button type="button" onclick="changeFilter('nam')"
+                       class="btn btn-outline-primary filter-btn"
+                       th:classappend="${filter == 'nam' ? 'active' : ''}">
+                        <i class="fas fa-chart-line me-1"></i>Năm
+                    </button>
+                </div>
+
+                <select th:if="${filter != 'nam'}" 
+                        id="yearFilter"
+                        class="form-select custom-select-year" 
+                        onchange="applyFilters()">
+                    
+                    <option value="all" th:selected="${selectedYear == null}">-- Lọc theo Năm --</option>
+                    <option th:each="yearItem : ${yearsList}"
+                            th:value="${yearItem.salesYear}"
+                            th:text="${'Năm ' + yearItem.salesYear}"
+                            th:selected="${yearItem.salesYear == selectedYear}">
+                        2024
+                    </option>
+                </select>
+
+                <select id="nvFilter"
+                        class="form-select custom-select-nv" 
+                        onchange="applyFilters()">
+                    
+                    <option value="all" th:selected="${selectedMaNV == null or selectedMaNV == ''}">-- Lọc theo Nhân Viên --</option>
+                    <option th:each="nvItem : ${nvList}"
+                            th:value="${nvItem.maNV}"
+                            th:text="${nvItem.maNV + ' - ' + nvItem.hoTen}"
+                            th:selected="${nvItem.maNV == selectedMaNV}">
+                        NV001 - Nguyễn Văn A
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="summary-card bg-gradient-blue p-4">
+                <div class="card-icon-bg"><i class="fas fa-shopping-cart"></i></div>
+                <div class="card-body p-0">
+                    <p class="card-value" th:text="${#numbers.formatInteger(tongDon, 0, 'POINT')}"></p>
+                    <p class="card-label">Tổng Số Đơn Hàng</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="summary-card bg-gradient-orange p-4">
+                <div class="card-icon-bg"><i class="fas fa-cubes"></i></div>
+                <div class="card-body p-0">
+                    <p class="card-value" th:text="${#numbers.formatInteger(tongSoLuong, 0, 'POINT')}"></p>
+                    <p class="card-label">Tổng Số Lượng Sản Phẩm</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="summary-card bg-gradient-green p-4">
+                 <div class="card-icon-bg"><i class="fas fa-sack-dollar"></i></div>
+                <div class="card-body p-0">
+                    <p class="card-value" th:text="${#numbers.formatInteger(tongDoanhThu, 0, 'POINT')} + ' VNĐ'"></p>
+                    <p class="card-label">Tổng Doanh Thu Đạt Được</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-detail shadow-lg">
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="mb-0 text-primary">
+                <i class="fas fa-table me-2"></i> Bảng Tổng Hợp Chi Tiết (Theo Nhân Viên và Thời Gian)
+                <span th:if="${selectedYear != null and filter != 'nam'}" class="badge rounded-pill bg-primary ms-2" th:text="'Năm ' + ${selectedYear}"></span>
+                <span th:if="${selectedMaNV != null and selectedMaNV != ''}" class="badge rounded-pill bg-info ms-2" th:text="'NV: ' + ${selectedMaNV}"></span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-doanhthu align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center">STT</th>
+                            <th>Mã NV</th>
+                            <th>Họ Tên Nhân Viên</th>
+
+                            <th th:if="${filter != 'nam'}"><i class="fas fa-calendar-alt me-1"></i> Năm</th> 
+                            
+                            <th th:if="${filter == 'ngay'}">Ngày Bán</th>
+                            <th th:if="${filter == 'tuan'}">Tuần</th>
+                            <th th:if="${filter == 'thang'}">Tháng</th>
+                            <th th:if="${filter == 'nam'}"><i class="fas fa-calendar-alt me-1"></i> Năm</th>
+
+                            <th class="text-end">Tổng Đơn</th>
+                            <th class="text-end">Tổng SL</th>
+                            <th class="text-end">Doanh Thu (VNĐ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="dt, stat : ${doanhThuList}">
+                            <td class="text-center" th:text="${stat.index + 1}">1</td>
+                            <td th:text="${dt.MaNV}" class="fw-bold text-info">NV001</td>
+                            <td th:text="${dt.hoTen}">Nguyễn Văn A</td>
+                            
+                            <td th:if="${filter != 'nam'}" th:text="${dt.Nam}">2025</td> 
+
+                            <td th:if="${filter == 'ngay'}" th:text="${#dates.format(dt.Ngay, 'dd/MM')}">01/01</td> 
+                            <td th:if="${filter == 'tuan'}" th:text="${dt.Tuan}">45</td>
+                            <td th:if="${filter == 'thang'}" th:text="${dt.Thang}">11</td>
+                            <td th:if="${filter == 'nam'}" th:text="${dt.Nam}" class="fw-bold">2025</td>
+
+
+                            <td class="text-end" th:text="${#numbers.formatInteger(dt.TongDon, 0, 'POINT')}">15</td>
+                            <td class="text-end" th:text="${#numbers.formatInteger(dt.TongSoLuong, 0, 'POINT')}">150</td>
+                            <td class="text-end fw-bolder text-success"
+                                th:text="${#numbers.formatInteger(dt.TongDoanhThu, 0, 'POINT')}">1,500,000</td>
+                        </tr>
+                        <tr th:if="${doanhThuList.isEmpty()}">
+                            <td th:attr="colspan=${filter == 'nam' ? 6 : 7}" class="text-center text-muted p-4">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Không có dữ liệu doanh thu nào được tìm thấy.
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                         <tr>
+                            <td th:attr="colspan=${filter == 'nam' ? 3 : 4}" class="text-end fw-bolder">TỔNG CỘNG CHUNG</td> 
+                            <td class="text-end fw-bolder" th:text="${#numbers.formatInteger(tongDon, 0, 'POINT')}"></td>
+                            <td class="text-end fw-bolder" th:text="${#numbers.formatInteger(tongSoLuong, 0, 'POINT')}"></td>
+                            <td class="text-end fw-bolder text-success" 
+                                th:text="${#numbers.formatInteger(tongDoanhThu, 0, 'POINT')}"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-4 mt-5 text-secondary">
+        &copy; 2025 Coffee Management System - Báo cáo được tạo tự động lúc <span th:text="${#dates.format(#dates.createNow(), 'HH:mm:ss dd/MM/yyyy')}"></span>
+    </footer>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

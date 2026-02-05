@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Về Chúng Tôi - Mao Coffee</title>
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+      <link rel="stylesheet" href="{% static 'main/css/vechungtoi.css'%}">
+</head>
+<body>
+
+<header class="header">
+    <div class="container">
+        <h1 class="logo">☕ Mao Coffee</h1>
+        <nav class="nav">
+            <a href="/">Trang chủ</a>
+            <a href="/vechungtoi" class="active">Về Chúng Tôi</a>
+        </nav>
+    </div>
+</header>
+
+<section class="about-page-content">
+    <div class="container">
+        
+        <h2 class="section-title">Hành Trình Của Mao Coffee</h2>
+
+        <div class="mission-vision card">
+            <h3>Sứ Mệnh & Tầm Nhìn</h3>
+            <p><strong>Sứ Mệnh:</strong> Mang đến những trải nghiệm cà phê đỉnh cao, kết nối cộng đồng yêu cà phê qua hương vị đậm đà và không gian ấm cúng, thân thiện.</p>
+            <p><strong>Tầm Nhìn:</strong> Trở thành chuỗi cửa hàng cà phê được yêu thích nhất, dẫn đầu về chất lượng hạt và sự sáng tạo trong pha chế tại Việt Nam.</p>
+        </div>
+
+        <div class="story-block">
+            <div class="story-text">
+                <h3>Khởi Nguồn Từ Đam Mê</h3>
+                <p>Mao Coffee ra đời vào năm 2025 từ một tình yêu vô điều kiện với cà phê. Người sáng lập tin rằng, một tách cà phê không chỉ là đồ uống mà còn là một câu chuyện, một khoảnh khắc thư giãn tuyệt vời trong cuộc sống bận rộn. Chúng tôi đã đi qua nhiều vùng đất, tìm kiếm những hạt cà phê Arabica và Robusta chất lượng nhất.</p>
+                <p>Quá trình rang xay của chúng tôi được kiểm soát nghiêm ngặt, đảm bảo mỗi hạt đều đạt đến độ chín mùi hoàn hảo, giữ trọn vẹn hương thơm và vị đắng nhẹ đặc trưng.</p>
+            </div>
+            <div class="story-image">
+                <img th:src="@{/images/rangcafe.jpg}" alt="Ảnh rang xay cà phê" class="story-img">
+            </div>
+        </div>
+
+        <div class="team-block">
+            <h3>Đội Ngũ Tận Tâm</h3>
+            <p>Chúng tôi tự hào với đội ngũ Barista và nhân viên phục vụ được đào tạo chuyên nghiệp. Họ không chỉ là những người pha chế tài năng mà còn là những người kể chuyện, sẵn sàng chia sẻ kiến thức về cà phê và mang lại dịch vụ chu đáo nhất cho bạn.</p>
+            
+            <div class="team-gallery">
+                <div class="team-member">
+                    <img th:src="@{/images/truong.jpg}" alt="Ảnh Barista Trưởng" class="member-img">
+                    <p>Mao - Barista Trưởng</p>
+                </div>
+                <div class="team-member">
+                    <img th:src="@{/images/quanli.jpg}" alt="Ảnh Quản lý cửa hàng" class="member-img">
+                    <p>Bảo Anh - Quản lý cửa hàng</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="container footer-grid">
+        
+        <div class="footer-col">
+            <h3>GIỚI THIỆU</h3>
+            <a href="/vechungtoi">Về Chúng Tôi</a>
+            <a href="/thucdon">Sản phẩm</a>
+            <a href="#">Khuyến mãi</a>
+            <a href="#">Tuyển dụng</a>
+        </div>
+        
+        <div class="footer-col">
+            <h3>ĐIỀU KHOẢN</h3>
+            <a href="#">Điều khoản sử dụng</a>
+            <a href="#">Chính sách bảo mật</a>
+        </div>
+        
+        <div class="footer-col contact-info">
+            <p class="company-name">THE MAO COFFEE HOUSE</p> 
+            <p><strong>VPĐD:</strong> Tầng 6, Tòa nhà Mao, TP Hà Nội</p>
+            <p><strong>Đặt hàng:</strong> 1800 6936</p>
+            <p><strong>Email:</strong> support.hn@maocoffee.com.vn</p>
+        </div>
+        
+        <div class="footer-col follow-us">
+            <h3 class="copyright-text">© 2025 MAO COFFEE</h3>
+            <p class="follow-text">Share</p>
+            <div class="social-icons">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="Youtube"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+        
+    </div>
+</footer>
+</body>
+</html>

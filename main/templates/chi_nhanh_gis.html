@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ thống Mao Coffee - Store Locator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="{% static 'main/css/Chinhanh.css' %}">
+    <style>
+        /* Bổ sung một số style nhanh để đảm bảo các tính năng mới hiển thị đẹp */
+        .suggest-box {
+            padding: 15px;
+            background: #fff8f3;
+            border-bottom: 2px solid #6F4E37;
+            display: none; /* Chỉ hiện khi tìm thấy vị trí */
+        }
+        .nearest-active {
+            background: #fff;
+            border: 2px solid #6F4E37;
+            border-radius: 12px;
+            margin-top: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 12px rgba(111, 78, 55, 0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nearest-active:hover {
+            transform: scale(1.02);
+            background-color: #fdf5f0;
+        }
+        .btn-near {
+            width: 100%;
+            background: #6F4E37;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 24px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-near:hover { background: #5a3e2b; }
+        
+        /* Hiệu ứng nhấp nháy cho quán được đề xuất */
+        @keyframes pulse-border {
+            0% { box-shadow: 0 0 0 0 rgba(111, 78, 55, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(111, 78, 55, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(111, 78, 55, 0); }
+        }
+        .pulse { animation: pulse-border 2s infinite; }
+    </style>
+</head>
+<body>
+
+<div class="layout">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                <a href="/" class="btn-home" title="Quay lại trang chủ" style="display:flex; align-items:center; justify-content:center; background:#f1f3f4; width:38px; height:38px; border-radius:50%; margin-right:12px; text-decoration:none; color:#70757a;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </a>
+                <h2 style="margin:0; font-size:20px; color:#6F4E37;">Mao Coffee</h2>
+            </div>
+    
+            <button class="btn-near" onclick="getLocation()">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                Tìm quán gần tôi nhất
+            </button>
+    
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Tìm tên hoặc khu vực...">
+            </div>
+        </div>
+        
+        <div id="suggested-branch" class="suggest-box">
+            <small style="color: #6F4E37; font-weight: bold; text-transform: uppercase;">⭐ Quán gần bạn nhất:</small>
+            <div id="suggest-content"></div>
+        </div>
+    
+        <div id="list"></div>
+    </div>
+
+    <div class="map-container">
+        <div id="map"></div>
+        
+        <div id="detail" class="detail hidden">
+            <button class="close-btn" onclick="closeDetail()">✕</button>
+            <img id="detail-img" src="">
+            <div class="detail-body">
+                <h3 id="detail-name" style="color: #6F4E37; margin-bottom: 5px;"></h3>
+                <p id="detail-rating" style="color: #fbbc04; font-weight: bold; margin-bottom: 5px;"></p>
+                <p id="detail-space" style="font-size: 13px; color: #444; margin-bottom: 5px;"></p>
+                <p id="detail-address" style="font-size: 12px; color: #777; border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px;"></p>
+                <div class="btn-direction" style="background:#6F4E37; color:white; padding:10px; border-radius:20px; text-align:center; margin-top:15px; cursor:default; font-weight:bold;">
+                    ☕ Mao Coffee hân hạnh đón tiếp
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // 1. Dữ liệu mẫu (Tuần sau bạn sẽ thay bằng dữ liệu từ Django Model)
+    const cafes = [
+        { id: 1, name: "Mao Coffee - Nhà Thờ Đức Bà", lat: 10.7797, lng: 106.6990, rating: "⭐ 4.8", space: "Cổ điển, view đẹp", address: "Số 1 Công Xã Paris, Q1", img: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500" },
+        { id: 2, name: "Mao Coffee - Phố Đi Bộ", lat: 10.7744, lng: 106.7032, rating: "⭐ 4.7", space: "Sôi động, hiện đại", address: "Nguyễn Huệ, Q1", img: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500" },
+        { id: 3, name: "Mao Coffee - Landmark 81", lat: 10.7948, lng: 106.7218, rating: "⭐ 4.9", space: "View Landmark cực xịn", address: "Vinhomes Central Park, Bình Thạnh", img: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=500" },
+        { id: 4, name: "Mao Coffee - China Town", lat: 10.7516, lng: 106.6633, rating: "⭐ 4.5", space: "Phong cách Á Đông", address: "Hải Thượng Lãn Ông, Q5", img: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500" },
+        { id: 5, name: "Mao Coffee - Thảo Điền", lat: 10.8041, lng: 106.7364, rating: "⭐ 4.6", space: "Sân vườn thoáng mát", address: "Thảo Điền, Q2", img: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=500" },
+        { id: 6, name: "Mao Coffee - Sân Bay", lat: 10.8142, lng: 106.6635, rating: "⭐ 4.4", space: "Yên tĩnh, phù hợp làm việc", address: "Trường Sơn, Tân Bình", img: "https://images.unsplash.com/photo-1521017432521-f34f739b35f8?w=500" }
+    ];
+
+    // 2. Khởi tạo Bản đồ
+    const map = L.map('map', { zoomControl: false }).setView([10.776, 106.700], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    const listDiv = document.getElementById("list");
+    const detailDiv = document.getElementById("detail");
+    const markers = {};
+    let userMarker;
+
+    // 3. Hàm hiển thị chi tiết quán
+    function showDetail(cafe) {
+        map.flyTo([cafe.lat, cafe.lng], 16);
+        document.getElementById("detail-img").src = cafe.img;
+        document.getElementById("detail-name").innerText = cafe.name;
+        document.getElementById("detail-rating").innerText = cafe.rating;
+        document.getElementById("detail-space").innerText = "🏠 " + cafe.space;
+        document.getElementById("detail-address").innerText = "📍 " + cafe.address;
+        detailDiv.classList.remove("hidden");
+    }
+
+    function closeDetail() { detailDiv.classList.add("hidden"); }
+
+    // 4. Render danh sách chi nhánh bên Sidebar
+    function renderList(data) {
+        listDiv.innerHTML = "";
+        data.forEach(cafe => {
+            const item = document.createElement("div");
+            item.className = "list-item";
+            item.style.padding = "15px";
+            item.style.borderBottom = "1px solid #eee";
+            item.style.cursor = "pointer";
+            item.innerHTML = `<b>${cafe.name}</b><p style="color:#fbbc04;margin:5px 0;">${cafe.rating}</p><small style="color:#777;">${cafe.address}</small>`;
+            item.onclick = () => showDetail(cafe);
+            listDiv.appendChild(item);
+        });
+    }
+
+    // 5. Thêm Marker vào bản đồ
+    cafes.forEach(cafe => {
+        const marker = L.marker([cafe.lat, cafe.lng]).addTo(map);
+        marker.on('click', () => showDetail(cafe));
+        markers[cafe.id] = marker;
+    });
+
+    renderList(cafes);
+
+    // 6. Xử lý Tìm kiếm
+    document.getElementById("search-input").addEventListener("input", function(e) {
+        const key = e.target.value.toLowerCase().trim();
+        const filtered = cafes.filter(c => c.name.toLowerCase().includes(key) || c.address.toLowerCase().includes(key));
+        renderList(filtered);
+        cafes.forEach(c => {
+            if(filtered.find(f => f.id === c.id)) markers[c.id].addTo(map);
+            else map.removeLayer(markers[c.id]);
+        });
+    });
+
+    // 7. --- LOGIC GIS: ĐỊNH VỊ VÀ TÌM QUÁN GẦN NHẤT ---
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+
+                // Vẽ vị trí người dùng
+                if (userMarker) map.removeLayer(userMarker);
+                userMarker = L.circleMarker([userLat, userLng], {
+                    color: '#1a73e8', fillOpacity: 0.8, radius: 8
+                }).addTo(map).bindPopup("Bạn đang ở đây").openPopup();
+
+                findNearest(userLat, userLng);
+            }, () => alert("Hãy bật định vị để tìm quán gần nhất!"));
+        }
+    }
+
+    // Thuật toán Haversine tính khoảng cách GIS
+    function getDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; 
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    }
+
+    function findNearest(uLat, uLng) {
+        let nearest = null;
+        let minDistance = Infinity;
+
+        cafes.forEach(cafe => {
+            const dist = getDistance(uLat, uLng, cafe.lat, cafe.lng);
+            if (dist < minDistance) {
+                minDistance = dist;
+                nearest = cafe;
+            }
+        });
+
+        if (nearest) {
+            const suggestBox = document.getElementById("suggested-branch");
+            const suggestContent = document.getElementById("suggest-content");
+            
+            suggestBox.style.display = "block";
+            
+            // Cập nhật nội dung quán gần nhất vào khung Đề xuất
+            suggestContent.innerHTML = `
+                <div class="nearest-active pulse" onclick='showDetail(${JSON.stringify(nearest)})'>
+                    <b style="color: #6F4E37;">${nearest.name}</b>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <span style="font-size: 11px; color: #666;">📍 ${nearest.address}</span>
+                        <span style="background: #6F4E37; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; white-space: nowrap;">
+                            Cách ${minDistance.toFixed(2)} km
+                        </span>
+                    </div>
+                </div>
+            `;
+            
+            // Bay đến quán đó luôn
+            showDetail(nearest);
+        }
+    }
+</script>
+</body>
+</html>

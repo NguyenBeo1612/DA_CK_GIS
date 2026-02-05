@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách đơn hàng</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 15px;
+            color: #333;
+        }
+
+        .container {
+            width: 95%;
+            margin: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 20px; /* Thêm margin cho bảng */
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        /* STYLE NÚT CHUNG */
+        .btn {
+            padding: 8px 15px; /* Tăng padding nút chung */
+            background: #555;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #333;
+        }
+
+        /* STYLE NÚT THANH TOÁN */
+        .btn-pay {
+            background-color: #28a745;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .btn-pay:hover {
+            background-color: #218838;
+        }
+
+        /* STYLE TRẠNG THÁI */
+        .paid {
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #d98300;
+            font-weight: bold;
+        }
+
+        .status-done {
+            color: #008000;
+            font-weight: bold;
+        }
+
+        /* STYLE MỚI: Nhóm nút hành động trên cùng */
+        .top-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        /* STYLE MỚI: Nhóm tìm kiếm */
+        .search-group {
+            display: flex;
+            align-items: center; /* Căn giữa theo chiều dọc */
+            gap: 20px; /* Khoảng cách giữa form và báo cáo */
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+
+        .search-group form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1; 
+            margin: 0; 
+        }
+
+        .search-group form label {
+            font-weight: bold;
+            color: #4CAF50;
+            min-width: 120px;
+        }
+
+        .search-group form input[type="text"] {
+            padding: 8px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            flex-grow: 1;
+        }
+        
+        .search-group form button[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-group form button[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        
+        /* STYLE MỚI: Khu vực báo cáo */
+        .report-summary {
+            flex-shrink: 0;
+            padding: 10px 20px;
+            background-color: #e8f5e9; /* Xanh lá nhạt */
+            border-radius: 6px;
+            border: 1px solid #c8e6c9;
+            font-weight: bold;
+            color: #1b5e20; /* Xanh lá đậm */
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    
+    <h1>📋 Danh Sách Đơn Hàng</h1>
+ <p>
+            Xin chào <span th:text="${currentUser.hoTen}">Tên người dùng</span> 
+            (<span th:text="${currentUser.chucVu}">Chức vụ</span>)
+        </p>
+    <div class="top-actions">
+    
+        <a th:href="@{/quanli}" class="btn">Quay lại</a>
+        <a th:href="@{/quanli}" class="btn">Quản lý</a>
+        <a th:href="@{/logout}" class="btn">Đăng xuất</a>
+    </div>
+    
+    <div class="search-group">
+    <!-- Chỉ Admin mới thấy thanh tìm kiếm -->
+    <div th:if="${isAdmin}">
+        <form th:action="@{/chitiet}" method="get">
+            <label>Tìm tên nhân viên:</label>
+            <input type="text" name="search" th:value="${search}" placeholder="Nhập tên nhân viên..." />
+            <button type="submit">Tìm kiếm</button>
+        </form>
+
+        <!-- Hiển thị tổng số đơn của nhân viên khi tìm kiếm -->
+        <div th:if="${search != null and search != '' and nhanVienTen != null}" class="report-summary">
+            <span th:text="${nhanVienTen}">Tên Nhân Viên</span> 
+            đã bán được 
+            <span class="text-danger" th:text="${#numbers.formatInteger(tongDonTimKiem, 0, 'POINT')}">X</span> 
+            đơn hàng.
+        </div>
+
+        <!-- Hiển thị thông báo tìm kiếm nhưng không có kết quả -->
+        <div th:if="${search != null and search != '' and nhanVienTen == null and !#lists.isEmpty(donHangList)}" class="report-summary">
+            Kết quả tìm kiếm cho: **<span th:text="${search}"></span>**
+        </div>
+    </div>
+</div>
+
+ <p>
+    Tổng số đơn hàng: <b th:text="${tongSoDon}"></b> —
+    Tổng tiền đã thanh toán: 
+    <b th:text="${#numbers.formatDecimal(tongDaThanhToan, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></b>
+</p>
+
+
+
+
+    <table>
+        <thead>
+        <tr>
+            <th>STT</th>
+            <th>Mã đơn</th>
+            <th>Khách hàng</th>
+            <th>Nhân viên</th>
+            <th>Ngày đặt</th>
+            <th>Trạng thái</th>
+            <th>Tổng tiền</th>
+            <th>Hành động</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="donHang, iterStat : ${donHangList}">
+            <td th:text="${iterStat.index + 1}">1</td>
+            <td th:text="${donHang.maDon}">DH001</td>
+            <td th:text="${donHang.khachHang != null ? donHang.khachHang.hoTen : 'Khách lẻ'}">Nguyễn Văn A</td>
+            <td th:text="${donHang.nhanVien != null ? donHang.nhanVien.hoTen : 'N/A'}">Nguyễn Thị B</td>
+            <td th:text="${#temporals.format(donHang.ngayDat,'dd/MM/yyyy HH:mm')}">20/11/2025 10:30</td>
+
+            <td>
+                <span th:if="${donHang.trangThai.equals('Đang xử lý')}" class="status-pending">
+                    Đang xử lý ⏳
+                </span>
+
+                <span th:if="${donHang.trangThai.equals('Đã thanh toán')}" class="status-done">
+                    Đã thanh toán ✔
+                </span>
+            </td>
+
+            <td th:text="${#numbers.formatInteger(donHang.tongTien, 0, 'POINT')} + ' đ'">100.000 đ</td>
+
+            <td>
+                <a class="btn-pay"
+                   th:if="${donHang.trangThai.equals('Đang xử lý')}"
+                   th:href="@{'/chitiet/pay/' + ${donHang.maDon}}">
+                    Thanh toán
+                </a>
+
+                <span th:if="${donHang.trangThai.equals('Đã thanh toán')}" class="paid">
+                    Đã thanh toán 🎉
+                </span>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(donHangList)}">
+             <td colspan="8" style="text-align: center; color: #777; padding: 20px;">
+                <i class="fas fa-exclamation-circle me-2"></i> Không tìm thấy đơn hàng nào.
+             </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

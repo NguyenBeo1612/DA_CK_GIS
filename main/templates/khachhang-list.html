@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách Khách Hàng</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Danh sách Khách Hàng</h1>
+        </header>
+
+        <p th:if="${currentUser != null}">
+            Xin chào <span th:text="${currentUser.hoTen}"></span> 
+            (<span th:text="${currentUser.chucVu}"></span>)
+        </p>
+        
+        <div class="btn-group" style="display:flex; justify-content:flex-end; gap:10px; margin:15px 0;">
+             <a th:href="@{/logout}" class="btn">Đăng xuất</a>
+             <a th:href="@{/quanli}" class="btn">Quay lại</a>
+             <a th:href="@{/donhang}" class="btn">Lên Đơn</a>
+             <!-- Bỏ giới hạn isAdmin, ai login cũng được thêm -->
+            <a th:href="@{/khachhang/add}" class="btn" th:if="${currentUser != null}">Thêm mới</a>
+        </div>
+        <form th:action="@{/khachhang}" method="get">
+	       <input type="text" name="keyword" th:value="${keyword}" placeholder="Tìm tên và sdt....." style="flex:1; padding:5px;"/>
+        <button type="submit" class="btn">Search</button>
+		</form>
+        
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Mã KH</th> 
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>SĐT</th>
+                    <th>Địa chỉ</th>
+                    
+                    <!-- Bỏ isAdmin để mọi người login đều thấy -->
+                    <th th:if="${currentUser != null}">Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="kh : ${khachhangList}">
+                    <td th:text="${kh.maKH}"></td> 
+                    <td th:text="${kh.hoTen}"></td>
+                    <td th:text="${kh.email}"></td>
+                    <td th:text="${kh.soDienThoai}"></td>
+                    <td th:text="${kh.diaChi}"></td>
+                    
+                    <td th:if="${currentUser != null}">
+					    <div class="action-buttons">
+					        <a th:href="@{'/khachhang/edit/' + ${kh.maKH}}" class="btn btn-edit">Sửa</a>
+					
+					        <!-- Nút Xóa chỉ hiện khi chức vụ là Admin -->
+					        <a th:if="${currentUser.chucVu == 'Admin'}"
+					           th:href="@{'/khachhang/delete/' + ${kh.maKH}}"
+					           class="btn btn-delete"
+					           onclick="return confirm('Bạn có chắc muốn xóa?')">
+					           Xóa
+					        </a>
+					    </div>
+					</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

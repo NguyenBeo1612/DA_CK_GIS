@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thêm / Sửa nhân viên</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1 th:text="${nhanvien.maNV} != null ? 'Sửa nhân viên' : 'Thêm nhân viên'">Thêm nhân viên</h1>
+    </header>
+
+    <div th:if="${errorMessage}" style="color:red; margin-bottom:10px;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <form th:action="@{/nhanvien/save}" th:object="${nhanvien}" method="post">
+        <input type="hidden" th:field="*{maNV}" />
+
+        <div>
+            <label>Họ tên:</label>
+            <input type="text" th:field="*{hoTen}" placeholder="Nhập họ tên" required />
+        </div>
+
+        <div>
+            <label>Email:</label>
+            <input type="email" th:field="*{email}" placeholder="Nhập email" required />
+        </div>
+
+        <div>
+            <label>Mật khẩu:</label>
+            <input type="password" th:field="*{matKhau}" placeholder="Nhập mật khẩu" required />
+        </div>
+
+        <div>
+            <label>Xác nhận mật khẩu:</label>
+            <input type="password" name="confirmPassword" placeholder="Nhập lại mật khẩu" required />
+        </div>
+
+        <div>
+            <label>Chức vụ:</label>
+            <select th:field="*{chucVu}">
+                <option value="Nhân viên" th:selected="${nhanvien.chucVu=='Nhân viên'}">Nhân viên</option>
+                <option value="Admin" th:selected="${nhanvien.chucVu=='Admin'}">Admin</option>
+            </select>
+        </div>
+
+        <div>
+            <label>Trạng thái:</label>
+            <select th:field="*{tinhTrang}">
+                <option th:value="true" th:selected="${nhanvien.tinhTrang == true}">Hoạt động</option>
+                <option th:value="false" th:selected="${nhanvien.tinhTrang != true}">Ngừng hoạt động</option>
+            </select>
+        </div>
+
+        <div style="margin-top: 10px;">
+            <button type="submit" class="btn">Lưu</button>
+            <a th:href="@{/nhanvien/list}" class="btn">Hủy</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách Khuyến Mãi</title>
+    <link rel="stylesheet" href="{% static 'main/css/style.css'%}">
+    
+</head>
+<body>
+    <h2>Danh sách Khuyến Mãi</h2>
+    <a th:href="@{/khuyenmai/add}">Thêm Khuyến Mãi</a>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Mã KM</th>
+                <th>Tên KM</th>
+                <th>% Giảm</th>
+                <th>Ngày bắt đầu</th>
+                <th>Ngày kết thúc</th>
+                <th>Mô tả</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="km : ${dsKM}">
+                <td th:text="${km.maKM}"></td>
+                <td th:text="${km.tenKM}"></td>
+                <td th:text="${km.phanTramGiam}"></td>
+                <td th:text="${km.ngayBatDau}"></td>
+                <td th:text="${km.ngayKetThuc}"></td>
+                <td th:text="${km.moTa}"></td>
+                <td>
+                    <a th:href="@{/khuyenmai/edit/{id}(id=${km.maKM})}">Sửa</a> |
+                    <a th:href="@{/khuyenmai/delete/{id}(id=${km.maKM})}" 
+                       onclick="return confirm('Bạn có chắc muốn xóa không?');">Xóa</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${khachhang.maKH != null ? 'Chỉnh Sửa Khách Hàng' : 'Thêm Khách Hàng Mới'}">Quản Lý Khách Hàng</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 th:text="${khachhang.maKH != null ? 'Chỉnh Sửa Khách Hàng' : 'Thêm Khách Hàng Mới'}"></h1>
+        </header>
+
+        <div class="card">
+            <h2 th:text="${khachhang.maKH != null ? 'Thông tin Khách Hàng' : 'Đăng ký Khách Hàng Mới'}"></h2>
+
+            <form th:action="@{/khachhang/save}" th:object="${khachhang}" method="post">
+                <input type="hidden" th:field="*{maKH}" /> 
+                
+                <label for="hoTen">Họ tên:</label>
+                <input type="text" id="hoTen" th:field="*{hoTen}" placeholder="Nhập họ tên">
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" th:field="*{email}" placeholder="Nhập địa chỉ email">
+
+                <label for="soDienThoai">Số điện thoại:</label>
+                <input type="text" id="soDienThoai" th:field="*{soDienThoai}" placeholder="Nhập số điện thoại">
+
+                <label for="diaChi">Địa chỉ:</label>
+                <input type="text" id="diaChi" th:field="*{diaChi}" placeholder="Nhập địa chỉ">
+
+                <label for="matKhau">Mật khẩu:</label>
+<input type="password" id="matKhau" th:field="*{matKhau}" placeholder="Nhập mật khẩu">
+
+
+                <!-- Nút Khách lạ -->
+                <button type="button" class="btn" 
+                        onclick="window.location.href='/khachhang/add?khachLa=true'">Khách lạ</button>
+                
+                <div class="btn-group" style="margin-top: 20px;">
+                    <button type="submit" class="btn">Lưu</button>
+                    <a th:href="@{/khachhang}" class="btn">Quay lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
