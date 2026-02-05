@@ -1,0 +1,300 @@
+/* ===================================== */
+/* RESET & FONT */
+/* ===================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f1ec; /* nền kem */
+    color: #4a3b32; /* chữ nâu đậm */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ===================================== */
+/* HEADER / NAVIGATION */
+/* ===================================== */
+
+.header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #d6c7b5;
+    padding: 15px 0;
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.8em;
+    color: #5d4037; /* nâu đậm */
+}
+
+.nav a {
+    text-decoration: none;
+    color: #5a4a42;
+    padding: 8px 15px;
+    margin-left: 10px;
+    font-weight: 600;
+    transition: color 0.3s, border-bottom 0.3s;
+}
+
+.nav a:hover,
+.nav a.active {
+    color: #c08a52; /* vàng nâu */
+    border-bottom: 2px solid #c08a52;
+}
+
+.nav .btn {
+    background-color: #8a5a41;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 5px;
+    border-bottom: none !important;
+}
+.nav .btn:hover {
+    background-color: #734a35;
+}
+
+/* ===================================== */
+/* TRANG ABOUT */
+/* ===================================== */
+
+.about-page-content {
+    padding: 60px 0;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5em;
+    color: #5d4037;
+    margin-bottom: 40px;
+    border-bottom: 3px solid #c08a52;
+    display: inline-block;
+    padding-bottom: 10px;
+    width: 100%;
+}
+
+/* Card block */
+.card {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(93, 64, 55, 0.1);
+    margin-bottom: 30px;
+}
+
+.mission-vision h3 {
+    color: #c08a52;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+.mission-vision p strong {
+    color: #5d4037;
+}
+
+/* Story Block (text + image) */
+.story-block {
+    display: flex;
+    align-items: center;
+    margin-bottom: 50px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(93, 64, 55, 0.1);
+}
+
+.story-text {
+    flex: 1;
+    padding: 30px;
+}
+
+.story-image {
+    flex: 1;
+    overflow: hidden;
+    border-radius: 0 8px 8px 0;
+}
+
+.story-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    min-height: 300px;
+}
+
+.story-block h3 {
+    color: #5d4037;
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+
+/* Team Block */
+.team-block h3 {
+    color: #c08a52;
+    font-size: 2em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.team-gallery {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.team-member {
+    text-align: center;
+    max-width: 250px;
+    padding: 15px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(93, 64, 55, 0.15);
+}
+
+.member-img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    border: 4px solid #c08a52;
+}
+
+/* Responsive About */
+@media (max-width: 768px) {
+    .story-block {
+        flex-direction: column;
+    }
+    .story-image {
+        border-radius: 0 0 8px 8px;
+    }
+    .team-gallery {
+        flex-direction: column;
+    }
+}
+
+/* ===================================== */
+/* FOOTER */
+/* ===================================== */
+
+.footer {
+    background-color: #2b1f1a; /* nâu đen */
+    color: #f2e7d8; /* kem */
+    padding: 40px 0 0 0;
+    font-size: 0.95em;
+    width: 100%;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1.2fr 1.8fr 1.5fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 40px 20px;
+}
+
+.footer-col h3,
+.footer-col .copyright-text {
+    color: #c8a15e;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.contact-info .company-name {
+    color: #c8a15e;
+    font-size: 1.4em;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.footer-col p {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.footer-col a {
+    display: block;
+    color: #f2e7d8;
+    text-decoration: none;
+    line-height: 2;
+    transition: color 0.3s;
+}
+
+.footer-col a:hover {
+    color: #ffffff;
+}
+
+/* Social */
+.follow-text {
+    color: #f2e7d8;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.social-icons a {
+    display: inline-block;
+    color: #f2e7d8;
+    font-size: 1.5em;
+    margin-right: 15px;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #c8a15e;
+}
+
+/* Footer Bottom */
+.footer-bottom {
+    border-top: 1px solid #4e3f34;
+    text-align: center;
+    padding: 20px 0;
+    font-size: 0.85em;
+    color: #d1c3b2;
+}
+
+/* Responsive Footer */
+@media (max-width: 992px) {
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .footer-col {
+        margin-bottom: 25px;
+    }
+
+    .footer-col a {
+        display: inline-block;
+        margin: 0 8px;
+        line-height: 1.5;
+    }
+
+    .social-icons a {
+        margin: 0 10px;
+    }
+}

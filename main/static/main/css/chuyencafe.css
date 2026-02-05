@@ -1,0 +1,269 @@
+/* ===================================== */
+/* RESET & FONT */
+/* ===================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f1ec; /* nền kem */
+    color: #4a3b32; /* chữ nâu đậm */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ===================================== */
+/* HEADER / NAVIGATION */
+/* ===================================== */
+.header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #d6c7b5;
+    padding: 15px 0;
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.8em;
+    color: #5d4037;
+    font-weight: bold;
+}
+
+.nav a {
+    text-decoration: none;
+    color: #5a4a42;
+    padding: 8px 15px;
+    margin-left: 10px;
+    font-weight: 600;
+    transition: color 0.3s, border-bottom 0.3s;
+}
+
+.nav a:hover,
+.nav a.active {
+    color: #c08a52;
+    border-bottom: 2px solid #c08a52;
+}
+
+.nav .btn {
+    background-color: #8a5a41;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 5px;
+    border: none;
+    transition: background 0.3s;
+}
+
+.nav .btn:hover {
+    background-color: #734a35;
+}
+
+/* ===================================== */
+/* BANNER */
+/* ===================================== */
+.banner {
+    background: url('/images/banner.png') center/cover no-repeat;
+    color: #ffffff;
+    padding: 120px 20px;
+    text-align: center;
+    position: relative;
+    border-bottom: 4px solid #c08a52;
+}
+
+.banner::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.3);
+    z-index: 1;
+}
+
+.banner h2,
+.banner p {
+    position: relative;
+    z-index: 2;
+}
+
+.banner h2 {
+    font-size: 3em;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.banner p {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ===================================== */
+/* STORY / CHUYỆN CÀ PHÊ */
+/* ===================================== */
+.story {
+    padding: 80px 20px;
+    background: url('/images/story-bg.jpg') center/cover no-repeat;
+    position: relative;
+    color: #5d4037;
+}
+
+.story::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(244, 241, 236, 0.85);
+    z-index: 1;
+}
+
+.story-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* CARD NÂU VIỀN, SHADOW NỔI */
+.card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 2px solid #c08a52; /* viền nâu vàng */
+    box-shadow: 0 6px 18px rgba(93,64,55,0.25);
+    overflow: hidden;
+    max-width: 350px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(93,64,55,0.35);
+    border-color: #8a5a41;
+}
+
+.card img.story-img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    transition: transform 0.3s, border-radius 0.3s;
+    border-bottom: 2px solid #c08a52;
+}
+
+.card:hover img.story-img {
+    transform: scale(1.05);
+    border-radius: 10px;
+}
+
+.card h3 {
+    color: #5d4037;
+    font-size: 1.6em;
+    margin: 15px 10px 10px 10px;
+}
+
+.card p {
+    padding: 0 15px 20px 15px;
+    font-size: 0.95em;
+    line-height: 1.5;
+}
+
+/* ===================================== */
+/* FOOTER */
+/* ===================================== */
+.footer {
+    background-color: #2b1f1a;
+    color: #f2e7d8;
+    padding: 40px 0 0;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #d6c7b5;
+}
+
+.footer-col {
+    text-align: left;
+}
+
+.footer-col h3 {
+    color: #c8a15e;
+    font-size: 16px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.footer-col a,
+.footer-col p {
+    display: block;
+    color: #f2e7d8;
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 10px;
+    transition: color 0.3s;
+}
+
+.footer-col a:hover {
+    color: #ffffff;
+}
+
+.footer-bottom {
+    text-align: center;
+    padding: 15px 0;
+    font-size: 14px;
+    background-color: #2b1f1a;
+    color: #d1c3b2;
+}
+
+.social-icons a {
+    display: inline-block;
+    color: #f2e7d8;
+    font-size: 1.5em;
+    margin-right: 15px;
+    transition: color 0.3s;
+}
+
+.social-icons a:hover {
+    color: #c8a15e;
+}
+
+/* ===================================== */
+/* RESPONSIVE */
+/* ===================================== */
+@media (max-width: 992px) {
+    .story-list {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .card {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .banner h2 {
+        font-size: 2em;
+    }
+    .banner p {
+        font-size: 1em;
+    }
+    .card p {
+        font-size: 0.9em;
+    }
+}

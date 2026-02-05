@@ -1,0 +1,103 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* BACKGROUND */
+body {
+    height: 100vh;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* LOGIN CONTAINER */
+.login-container {
+    width: 380px;
+}
+
+/* LOGIN CARD */
+.login-box {
+    background: #ffffff;
+    padding: 35px 40px;
+    border-radius: 18px;
+    box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.2);
+    animation: showUp 0.6s ease;
+}
+
+@keyframes showUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* TITLE */
+.login-box h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+/* LABEL */
+label {
+    font-size: 15px;
+    color: #444;
+}
+
+/* INPUT */
+input {
+    width: 100%;
+    padding: 12px 14px;
+    margin: 8px 0 18px;
+    border: 1.5px solid #ccc;
+    border-radius: 10px;
+    transition: 0.25s;
+    font-size: 15px;
+}
+
+input:focus {
+    border-color: #6a11cb;
+    outline: none;
+    box-shadow: 0 0 6px rgba(106, 17, 203, 0.4);
+}
+
+/* PASSWORD WRAPPER */
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* BUTTON */
+.btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.25s;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+/* ERROR MESSAGE */
+.error-message {
+    margin-top: 10px;
+    color: red;
+    text-align: center;
+}
