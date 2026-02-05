@@ -1,0 +1,115 @@
+/* timkiem.css */
+
+/* ===== Container chung ===== */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+/* ===== Tiêu đề ===== */
+h2, h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+}
+
+/* ===== Form tìm kiếm ===== */
+.search-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.search-section form {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.search-section input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.search-section input[type="text"]:focus {
+    border-color: #6b4f4f;
+}
+
+.search-section button {
+    padding: 10px 20px;
+    background-color: #6b4f4f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.search-section button:hover {
+    background-color: #8c5c5c;
+}
+
+/* ===== Bảng kết quả ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 40px;
+    font-family: 'Arial', sans-serif;
+}
+
+table th, table td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background-color: #6b4f4f;
+    color: white;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1e9e9;
+}
+
+/* ===== Thông báo ===== */
+.message-box {
+    background-color: #ffefc0;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .search-section form {
+        flex-direction: column;
+    }
+
+    .search-section button {
+        width: 100%;
+    }
+
+    table th, table td {
+        font-size: 14px;
+    }
+}

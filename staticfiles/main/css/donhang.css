@@ -1,0 +1,264 @@
+/* ======================= */
+/* DONHANG.CSS - Style riêng cho trang Đơn Hàng */
+/* ======================= */
+
+/* Sử dụng lại các biến màu chính từ bộ CSS gốc */
+:root {
+    --color-bg-light: #f4f1ec;   /* Nền kem sáng */
+    --color-text-dark: #4a3b32;  /* Chữ nâu đậm */
+    --color-primary: #8a5a41;    /* Nâu ấm (Primary Button/Link) */
+    --color-secondary: #5d4037;  /* Nâu đậm (Table Header/Text Title) */
+    --color-accent: #c08a52;     /* Vàng nâu (Accent/Edit Button) */
+    --color-border: #d6c7b5;     /* Viền xám kem */
+    --color-success: #38761d;    /* Xanh lá đậm cho ĐÃ THANH TOÁN */
+    --color-pending: #a04a4a;    /* Đỏ nâu cho CHƯA THANH TOÁN */
+}
+
+/* ======================= */
+/* BODY & CONTAINER       */
+/* ======================= */
+body {
+    background-color: var(--color-bg-light); 
+    color: var(--color-text-dark); 
+    line-height: 1.6;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1300px; /* Rộng hơn cho bảng chi tiết */
+    margin: auto;
+}
+
+h1 {
+    font-size: 32px;
+    color: var(--color-secondary);
+    margin-bottom: 25px;
+    font-weight: 700;
+}
+
+/* ======================= */
+/* NÚT HÀNH ĐỘNG CHUNG (Dựa trên .btn gốc) */
+/* ======================= */
+.btn-action {
+    display: inline-block;
+    background-color: var(--color-primary); 
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    margin: 5px 5px 15px 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 8px rgba(93, 64, 55, 0.2);
+    border: 2px solid var(--color-primary);
+    font-size: 15px;
+}
+
+.btn-action:hover {
+    background-color: #734a35; 
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(93, 64, 55, 0.3);
+}
+
+.btn-info { /* Ví dụ cho Thêm Mới/Mở POS */
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+}
+.btn-info:hover {
+    background-color: #a37243;
+}
+
+.btn-danger { /* Ví dụ cho Logout */
+    background-color: var(--color-pending);
+    border-color: var(--color-pending);
+}
+.btn-danger:hover {
+    background-color: #8c3f3f;
+}
+
+.btn-success { /* Ví dụ cho Quay Lại Menu */
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+}
+.btn-success:hover {
+    background-color: #4a3b32;
+}
+
+
+/* ======================= */
+/* KHU VỰC LỌC VÀ TÌM KIẾM */
+/* ======================= */
+.filter-section {
+    background-color: #f7f5f2; /* Nền kem nhẹ hơn */
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid var(--color-border);
+}
+
+.filter-section .form-label {
+    font-weight: 600;
+    color: var(--color-secondary);
+}
+
+.filter-section .form-control,
+.filter-section .form-select {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background-color: #fff;
+    color: var(--color-text-dark);
+}
+
+.filter-section .input-group-text {
+    background-color: #fff;
+    border: 1px solid var(--color-border);
+    border-right: none;
+    color: var(--color-primary);
+}
+
+.filter-section .btn-primary { /* Nút Lọc */
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+.filter-section .btn-primary:hover {
+    background-color: #734a35;
+    border-color: #734a35;
+}
+
+.filter-section .btn-secondary { /* Nút Reset */
+    background-color: var(--color-border);
+    border-color: var(--color-border);
+    color: var(--color-secondary);
+}
+.filter-section .btn-secondary:hover {
+    background-color: #c7bdae;
+    border-color: #c7bdae;
+}
+
+
+/* ======================= */
+/* BẢNG ĐƠN HÀNG (Dựa trên style Tables gốc) */
+/* ======================= */
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(93, 64, 55, 0.1);
+}
+
+.table-custom {
+    width: 100%;
+    margin-bottom: 0; /* Đã có .table-responsive bọc ngoài */
+    background-color: #ffffff;
+}
+
+.table-custom thead th {
+    background-color: var(--color-secondary); /* Header nâu đậm */
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 2px solid #4a3b32;
+    padding: 14px 18px;
+    font-size: 0.9rem;
+}
+
+.table-custom tbody td {
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-dark);
+    vertical-align: middle;
+}
+
+.table-custom tbody tr:nth-child(even) {
+    background-color: #fcfcfc; 
+}
+
+.table-custom tbody tr:hover {
+    background-color: #fffaf5; 
+}
+
+/* ======================= */
+/* TRẠNG THÁI (BADGES)    */
+/* ======================= */
+
+.badge {
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-block;
+}
+
+.badge-status-paid {
+    background-color: var(--color-success) !important; 
+    color: white;
+}
+
+.badge-status-pending {
+    background-color: var(--color-pending) !important; 
+    color: white;
+}
+
+/* ======================= */
+/* CỘT CHI TIẾT MÓN & ẢNH */
+/* ======================= */
+
+.product-image {
+    width: 45px; 
+    height: 45px;
+    object-fit: cover;
+    border-radius: 6px; 
+    border: 1px solid var(--color-border);
+}
+
+.list-unstyled li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    font-size: 0.95rem;
+}
+
+/* ======================= */
+/* CỘT TỔNG TIỀN          */
+/* ======================= */
+.text-currency {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--color-success); /* Dùng màu xanh lá đậm cho số tiền */
+}
+
+/* ======================= */
+/* HÀNH ĐỘNG TRONG BẢNG   */
+/* ======================= */
+.action-buttons-table {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+.action-buttons-table .btn-warning { /* Edit */
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+}
+
+.action-buttons-table .btn-warning:hover {
+    background-color: #a37243;
+    border-color: #a37243;
+}
+
+.action-buttons-table .btn-danger { /* Delete */
+    background-color: var(--color-pending);
+    border-color: var(--color-pending);
+    color: white;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+}
+.action-buttons-table .btn-danger:hover {
+    background-color: #8c3f3f;
+    border-color: #8c3f3f;
+}

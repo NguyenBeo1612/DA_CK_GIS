@@ -1,0 +1,319 @@
+/* ======================= */
+/* RESET CƠ BẢN           */
+/* ======================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* ======================= */
+/* BODY & CONTAINER       */
+/* ======================= */
+body {
+    background-color: #f4f1ec; /* Nền kem sáng (từ Về Chúng Tôi) */
+    color: #4a3b32; /* Chữ nâu đậm (từ Về Chúng Tôi) */
+    line-height: 1.6;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* ======================= */
+/* HEADER                 */
+/* ======================= */
+header {
+    background-color: #ffffff; /* Nền trắng */
+    color: #5d4037; /* Nâu đậm */
+    padding: 20px 30px;
+    text-align: center;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-bottom: 2px solid #d6c7b5;
+}
+
+header h1 {
+    font-size: 32px;
+}
+
+/* ======================= */
+/* BUTTONS                */
+/* ======================= */
+.btn {
+    display: inline-block;
+    background-color: #8a5a41; /* Nâu ấm (tương đương nút Đặt Bàn) */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    margin: 5px 5px 15px 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 8px rgba(93, 64, 55, 0.2); /* Đổ bóng nâu nhẹ */
+    border: 2px solid #8a5a41;
+    font-size: 14px;
+}
+
+.btn:hover {
+    background-color: #734a35; /* Nâu đậm hơn khi hover */
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(93, 64, 55, 0.3);
+}
+
+.btn-edit {
+    background-color: #c08a52; /* Vàng nâu (Màu điểm nhấn) */
+    border: 2px solid #c08a52;
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: #a37243; /* Vàng nâu đậm hơn */
+    color: white;
+}
+
+.btn-delete {
+    background-color: #a04a4a; /* Đỏ nâu nhẹ nhàng hơn */
+    border: 2px solid #a04a4a;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #8c3f3f;
+    color: white;
+}
+
+/* ======================= */
+/* TABLES                 */
+/* ======================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    background-color: #ffffff; /* Nền trắng cho bảng */
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(93, 64, 55, 0.1);
+    table-layout: fixed;
+}
+
+table th, table td {
+    padding: 14px 18px;
+    text-align: center;
+    border-bottom: 1px solid #d6c7b5; /* Đường kẻ mỏng */
+    color: #4a3b32;
+    word-wrap: break-word;
+}
+
+table th {
+    background-color: #5d4037; /* Header nâu đậm */
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 2px solid #4a3b32;
+}
+
+table tr:nth-child(even) {
+    background-color: #fcfcfc; /* Hàng chẵn hơi khác */
+}
+
+table tr:hover {
+    background-color: #fffaf5; /* Kem nhạt hover */
+}
+
+/* Nút trong bảng */
+/* Giữ nguyên style này cho trường hợp nút đứng riêng */
+.btn-edit, .btn-delete {
+    padding: 6px 10px;
+    font-size: 13px;
+    margin: 2px;
+}
+
+/* ======================= */
+/* FORMS                  */
+/* ======================= */
+form {
+    background-color: #ffffff; /* Nền trắng cho form */
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: auto;
+    box-shadow: 0 4px 12px rgba(93, 64, 55, 0.15);
+    border-top: 5px solid #c08a52; /* Đường kẻ vàng nâu trên cùng */
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #5d4037; /* Chữ label nâu đậm */
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="email"],
+form input[type="password"],
+form select,
+form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #d6c7b5; /* Viền xám kem */
+    background-color: #fff;
+    color: #4a3b32;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+    border-color: #c08a52; /* Viền vàng nâu khi focus */
+    outline: none;
+    background-color: #fff8f5;
+}
+/* Đồng bộ nút button và a trong form */
+form .btn {
+    display: inline-block;
+    padding: 12px 25px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    line-height: normal;
+    background-color: #8a5a41; /* Nâu ấm */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+    margin-right: 10px;
+}
+
+form .btn:hover {
+    background-color: #734a35;
+    transform: translateY(-1px);
+}
+
+
+/* ======================= */
+/* LINKS                  */
+/* ======================= */
+a {
+    color: #8a5a41; /* Màu link nâu ấm */
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #c08a52; /* Vàng nâu khi hover */
+}
+
+/* ======================= */
+/* CARDS                  */
+/* ======================= */
+.card {
+    background-color: #ffffff; /* Nền trắng */
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(93, 64, 55, 0.1);
+    margin-bottom: 20px;
+    transition: 0.3s;
+    border-left: 5px solid #c08a52; /* Đường viền vàng nâu */
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(93, 64, 55, 0.2);
+}
+
+/* ======================= */
+/* IMAGES                 */
+/* ======================= */
+img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+/* ======================= */
+/* RESPONSIVE             */
+/* ======================= */
+@media (max-width: 768px) {
+    table, form {
+        width: 100%;
+    }
+    header h1 {
+        font-size: 24px;
+    }
+    .btn {
+        margin-bottom: 10px;
+    }
+}
+
+/* ======================= */
+/* ACTION BUTTONS IN TABLE (NEW) */
+/* ======================= */
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-buttons .btn {
+    margin: 0;
+    padding: 6px 10px;
+    font-size: 13px;
+}
+/* ======================= */
+/* SEARCH FORM (Đẹp + Hòa hợp) */
+/* ======================= */
+.btn-group form {
+    display: flex;
+    align-items: center;
+    gap: 8px;           /* Khoảng cách giữa input và button */
+    margin: 0;          /* Không tạo margin thừa */
+}
+
+.btn-group form input[type="text"] {
+    padding: 10px 15px;
+    border-radius: 8px;             /* Bo tròn giống button */
+    border: 1px solid #d6c7b5;      /* Viền xám kem */
+    background-color: #fff;
+    color: #4a3b32;
+    font-size: 14px;
+    width: 200px;                    /* Chiều rộng hợp lý */
+    transition: all 0.3s ease;
+}
+
+.btn-group form input[type="text"]:focus {
+    border-color: #c08a52;          /* Viền vàng nâu khi focus */
+    outline: none;
+    background-color: #fff8f5;      /* Nền kem nhạt khi focus */
+    box-shadow: 0 2px 6px rgba(93, 64, 55, 0.2);
+}
+
+.btn-group form button {
+    padding: 9px 18px;
+    border-radius: 8px;
+    background-color: #8a5a41;      /* Nâu ấm */
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    border: 2px solid #8a5a41;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 8px rgba(93, 64, 55, 0.2);
+}
+
+.btn-group form button:hover {
+    background-color: #734a35;      /* Nâu đậm khi hover */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(93, 64, 55, 0.3);
+}

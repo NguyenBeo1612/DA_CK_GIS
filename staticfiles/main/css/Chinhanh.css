@@ -1,0 +1,231 @@
+/* Biến màu sắc chủ đạo theo phong cách Google Maps */
+:root {
+    --primary-color: #1a73e8; /* Xanh đặc trưng Google */
+    --text-main: #202124;
+    --text-sub: #70757a;
+    --bg-white: #ffffff;
+    --star-color: #fbbc04;
+    --border-color: #dfe1e5;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    overflow: hidden; /* Tránh cuộn trang chính */
+}
+
+.layout {
+    display: flex;
+    height: 100vh;
+    position: relative;
+}
+
+/* SIDEBAR NỔI (FLOATING SIDEBAR) */
+.sidebar {
+    width: 380px;
+    background: var(--bg-white);
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    bottom: 15px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.sidebar-header h2 {
+    margin: 0 0 15px 0;
+    color: var(--text-main);
+    font-size: 20px;
+}
+
+/* Ô Tìm Kiếm */
+.search-container {
+    position: relative;
+}
+
+#search-input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+    outline: none;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+#search-input:focus {
+    border-color: transparent;
+    box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+}
+
+/* DANH SÁCH CHI NHÁNH */
+#list {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.list-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f3f4;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.list-item:hover {
+    background-color: #f8f9fa;
+}
+
+.list-item b {
+    display: block;
+    font-size: 16px;
+    color: var(--primary-color);
+    margin-bottom: 4px;
+}
+
+.list-item p {
+    margin: 2px 0;
+    font-size: 13px;
+    color: var(--star-color);
+    font-weight: bold;
+}
+
+.list-item small {
+    color: var(--text-sub);
+    font-size: 12px;
+}
+
+/* BẢN ĐỒ CHIẾM TOÀN DIỆN TÍCH */
+.map-container {
+    flex: 1;
+    height: 100%;
+}
+
+#map {
+    height: 100%;
+    width: 100%;
+}
+
+/* BẢNG CHI TIẾT (DETAIL PANEL) */
+.detail {
+    position: absolute;
+    bottom: 25px;
+    right: 25px;
+    width: 320px;
+    background: white;
+    z-index: 1001;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    overflow: hidden;
+}
+
+.hidden {
+    display: none;
+}
+
+#detail-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+
+.detail-body {
+    padding: 15px;
+}
+
+.detail-body h3 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+}
+
+.btn-direction {
+    width: 100%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 20px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.btn-direction:hover {
+    background: #1765cc;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.4);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tùy chỉnh Marker trên Map (Leaflet) */
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+}
+/* Nút tìm quán gần nhất - Đã sửa lỗi CSS */
+.btn-near {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 24px; /* Bo tròn theo style search bar */
+    margin-bottom: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+.btn-near:hover {
+    background-color: #5a3e2b; /* Nâu đậm hơn khi hover */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transform: translateY(-1px);
+}
+
+.btn-near:active {
+    transform: translateY(0);
+}
+
+/* Khung đề xuất quán gần nhất */
+.suggest-box {
+    padding: 12px 15px;
+    background: #fdfaf8; /* Màu kem nhẹ */
+    border-bottom: 2px solid var(--primary-color);
+    display: none; /* Hiện ra qua JS */
+}
+
+.suggest-box small {
+    display: block;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
