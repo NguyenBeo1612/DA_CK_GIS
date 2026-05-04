@@ -1,0 +1,262 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo Doanh Thu | CafeHouse System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --sidebar-color: #0f172a;
+            --accent-gold: #fbbf24;
+            --bg-body: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --sidebar-width: 280px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg-body); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-main); display: flex; min-height: 100vh; }
+
+        /* --- SIDEBAR (Giữ nguyên từ Dashboard chính) --- */
+        .sidebar {
+            height: 100vh; width: var(--sidebar-width);
+            position: fixed; background: var(--sidebar-color);
+            padding: 2.5rem 1.5rem; display: flex; flex-direction: column; z-index: 1000;
+        }
+        .sidebar-brand { color: var(--white); font-size: 1.6rem; font-weight: 800; margin-bottom: 3rem; display: flex; align-items: center; text-decoration: none; }
+        .sidebar-brand i { color: var(--accent-gold); margin-right: 12px; }
+        .nav-link { color: #94a3b8; padding: 14px 18px; border-radius: 16px; margin-bottom: 8px; transition: 0.3s; font-weight: 600; display: flex; align-items: center; text-decoration: none; }
+        .nav-link i { width: 30px; font-size: 1.2rem; }
+        .nav-link:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+        .nav-link.active { background: var(--accent-gold); color: var(--sidebar-color) !important; box-shadow: 0 10px 20px rgba(251, 191, 36, 0.2); }
+        .logout-section { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); padding: 40px 50px; }
+        
+        /* Search Bar Style */
+        .search-box { background: white; padding: 8px 25px; border-radius: 50px; box-shadow: 0 5px 15px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; }
+        .search-box input { border: none; outline: none; font-weight: 600; font-size: 0.9rem; width: 250px; }
+
+        /* Stat Cards */
+        .stat-card { border: none; border-radius: 30px; padding: 30px; background: var(--white); box-shadow: 0 10px 30px rgba(0,0,0,0.02); transition: 0.3s; height: 100%; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-icon { width: 60px; height: 60px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 20px; }
+        
+        .bg-soft-green { background: #f0fdf4; color: #16a34a; }
+        .bg-soft-gold { background: #fffbeb; color: #d97706; }
+        .bg-soft-blue { background: #eff6ff; color: #2563eb; }
+
+        /* Table Style */
+        .table-card { background: var(--white); border-radius: 32px; padding: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; }
+        .table thead th { background: #f8fafc; border: none; color: #64748b; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; padding: 18px 20px; }
+        
+        .branch-info { display: flex; align-items: center; }
+        .branch-icon { width: 48px; height: 48px; background: #f1f5f9; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: #475569; font-size: 1.2rem; flex-shrink: 0; }
+        
+        /* Badge Styles */
+        .badge-on { background: #eff6ff; color: #2563eb; font-weight: 700; font-size: 10px; padding: 4px 10px; border-radius: 8px; margin-bottom: 3px; display: inline-block; }
+        .badge-off { background: #f0fdf4; color: #16a34a; font-weight: 700; font-size: 10px; padding: 4px 10px; border-radius: 8px; display: inline-block; }
+
+        .price-text { font-weight: 800; color: #1e293b; }
+        .price-total { font-weight: 800; color: #16a34a; font-size: 1.1rem; }
+        .fw-800 { font-weight: 800; }
+        @media (max-width: 992px) {
+            /* 1. Reset width và ẩn sidebar hoàn toàn */
+            .sidebar {
+                left: -100%; /* Đẩy hẳn ra ngoài màn hình */
+                width: 280px; /* Giữ nguyên chiều rộng khi hiện ra */
+                transition: all 0.4s ease-in-out;
+                box-shadow: none;
+            }
+        
+            /* 2. Khi active thì mới hiện và đổ bóng */
+            .sidebar.active {
+                left: 0;
+                box-shadow: 10px 0 50px rgba(0,0,0,0.3);
+            }
+        
+            /* 3. Sửa lỗi text bị nhảy: Đảm bảo link không bị wrap */
+            .nav-link {
+                white-space: nowrap; /* Không cho chữ xuống hàng */
+                padding: 15px 20px;
+                font-size: 0.95rem;
+            }
+        
+            /* 4. Main content: Bỏ margin để không bị khoảng trắng bên trái */
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 15px;
+            }
+        
+            /* 5. Header: Tránh đè lên nút Menu */
+            header {
+                margin-top: 10px;
+            }
+        }
+        
+        /* Nút toggle nằm cố định một góc cho dễ bấm */
+        .menu-toggle {
+            display: none; /* Ẩn trên PC */
+            position: sticky;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 992px) {
+            .menu-toggle { display: inline-block; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-brand">
+            <i class="fas fa-gem"></i> CAFEHOUSE
+        </a>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="fas fa-chart-pie"></i> Tổng quan</a>
+            <a class="nav-link" href="{% url 'quan_ly_chi_nhanh' %}"><i class="fas fa-store"></i> Quản lý chi nhánh</a>
+            <a class="nav-link" href="{% url 'quan_ly_nhan_vien' %}"><i class="fas fa-users"></i> Nhân sự</a>
+            <a class="nav-link" href="{% url 'category_list' %}"><i class="fas fa-layer-group"></i> Danh mục món</a>
+            <a class="nav-link" href="{% url 'menu_list' %}"><i class="fas fa-mug-hot"></i> Quản lý thực đơn</a>
+            <a class="nav-link active" href="{% url 'revenue' %}"><i class="fas fa-file-invoice-dollar"></i> Doanh thu</a>
+            <a class="nav-link" href="{% url 'inventory_staff' %}">
+                <i class="fas fa-box-open"></i> Kho nguyên liệu
+            </a>
+        </nav>
+        <div class="logout-section">
+            <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="fas fa-power-off"></i> Đăng xuất</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i> Menu
+        </button>
+        <header class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="mb-1 text-dark fw-800">Phân tích Doanh thu</h2>
+                <p class="text-muted mb-0 small fw-600">Báo cáo bóc tách chi tiết tài chính hệ thống</p>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <form method="GET" class="search-box d-flex align-items-center">
+                    <i class="fas fa-search text-muted me-2"></i>
+                    <input type="text" name="search" placeholder="Tìm chi nhánh, địa chỉ..." value="{{ search_query }}">
+                    <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3 ms-2">Lọc</button>
+                </form>
+                
+                <div class="d-flex align-items-center bg-white p-2 pe-4 rounded-pill shadow-sm border border-light">
+                    <img src="https://ui-avatars.com/api/?name={{ ten_admin }}&background=fbbf24&color=0f172a" class="rounded-circle me-3" width="45">
+                    <div>
+                        <div class="fw-800 small text-dark text-uppercase">{{ ten_admin }}</div>
+                        <small class="text-muted" style="font-size: 10px; font-weight: 700;">CHỦ TỊCH</small>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-soft-green"><i class="fas fa-hand-holding-usd"></i></div>
+                    <p class="text-muted mb-1 fw-600">Tổng doanh thu hệ thống</p>
+                    <h3 class="fw-800 mb-0 text-success">{{ tong_doanh_thu }} <small class="fs-6 text-muted">đ</small></h3>
+                    <small class="text-success fw-bold" style="font-size: 11px;">ĐÃ THANH TOÁN</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-soft-blue"><i class="fas fa-file-check"></i></div>
+                    <p class="text-muted mb-1 fw-600">Tổng đơn hoàn thành</p>
+                    <h3 class="fw-800 mb-0">{{ tong_don_xong }}</h3>
+                    <small class="text-primary fw-bold" style="font-size: 11px;">GIAO DỊCH THÀNH CÔNG</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-soft-gold"><i class="fas fa-spinner"></i></div>
+                    <p class="text-muted mb-1 fw-600">Đơn đang xử lý</p>
+                    <h3 class="fw-800 mb-0">{{ don_cho }}</h3>
+                    <small class="text-warning fw-bold" style="font-size: 11px;">CHƯA HOÀN TẤT</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-800 mb-0 text-uppercase small" style="letter-spacing: 1px; color: #64748b;">Doanh thu chi tiết chi nhánh</h5>
+                <a href="{% url 'export_excel' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-700">
+                    <i class="fas fa-file-excel me-1"></i> Xuất Excel
+                </a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Chi nhánh</th>
+                            <th class="text-center">Số đơn</th>
+                            <th class="text-end">Tiền món</th>
+                            <th class="text-end">Phí Ship</th>
+                            <th class="text-end pe-4">Tổng cộng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in doanh_thu_chi_nhanh %}
+                        <tr>
+                            <td>
+                                <div class="branch-info">
+                                    <div class="branch-icon"><i class="fas fa-store"></i></div>
+                                    <div>
+                                        <span class="fw-800 text-dark d-block">{{ item.ten }}</span>
+                                        <span class="text-muted small d-block" style="font-size: 0.8rem;">{{ item.diachi }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-on">{{ item.don_on }} Online</span><br>
+                                <span class="badge-off">{{ item.don_tai_quay }} Tại quầy</span>
+                            </td>
+                            <td class="text-end price-text text-secondary">{{ item.tien_mon }} đ</td>
+                            <td class="text-end price-text text-warning">+ {{ item.tien_ship }} đ</td>
+                            <td class="text-end pe-4">
+                                <span class="price-total">{{ item.tong_cong }} đ</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" width="60" class="opacity-25 mb-3">
+                                <p class="text-muted fw-600">Không có dữ liệu doanh thu phù hợp.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+    </script>  
+</body>
+</html>

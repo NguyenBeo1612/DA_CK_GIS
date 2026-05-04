@@ -1,0 +1,341 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Cửa Hàng | COFFEE HOUSE</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
+    <style>
+        :root { --primary: #1e7f3f; --dark-coffee: #1a0f0d; --accent: #d4a373; --bg-page: #fcfcfc; --coffee-light: #faf7f5; }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--coffee-light); color: var(--dark-coffee); margin: 0; scroll-behavior: smooth; }
+        
+        /* Navbar */
+        .navbar-custom { background: white; border-bottom: 2px solid var(--primary); padding: 10px 5%; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .nav-link { font-weight: 600; color: var(--dark-coffee) !important; text-transform: uppercase; font-size: 13px; margin: 0 10px; }
+        .nav-link:hover, .nav-link.active { color: var(--primary) !important; }
+        .logo-center { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 24px; text-decoration: none; color: var(--dark-coffee) !important; }
+
+        /* Store Cards */
+        .store-card { background: white; border-radius: 20px; overflow: hidden; transition: 0.4s; height: 100%; border: 1px solid #eee; position: relative; }
+        .nearest-highlight { border: 3px solid var(--primary) !important; box-shadow: 0 20px 40px rgba(30, 127, 63, 0.25) !important; transform: scale(1.02); z-index: 5; }
+        .nearest-badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: linear-gradient(45deg, #1e7f3f, #2ecc71); color: white; padding: 6px 16px; border-radius: 50px; font-size: 11px; font-weight: 800; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        
+        .mini-map { height: 180px; filter: saturate(0.8); }
+        .btn-discover { background: var(--dark-coffee); color: white; border-radius: 12px; padding: 10px; width: 100%; border: none; font-weight: 700; text-transform: uppercase; transition: 0.3s; font-size: 13px; }
+        .btn-discover:hover { background: var(--primary); }
+
+        /* Modal & Layout Optimization */
+        .modal-content { border-radius: 30px; border: none; height: 90vh; overflow: hidden; }
+        
+        /* Chuyển sang Flex-column trên mobile và Row trên PC */
+        .panel-grid { display: flex; flex-direction: column; height: 100%; overflow-y: auto; }
+        @media (min-width: 992px) {
+            .panel-grid { flex-direction: row; overflow: hidden; }
+        }
+
+        .side-gallery { width: 100%; padding: 25px; border-bottom: 1px solid #f0f0f0; background: #fff; }
+        .side-reviews { width: 100%; padding: 25px; display: flex; flex-direction: column; background: #fdfdfd; }
+
+        @media (min-width: 992px) {
+            .side-gallery { width: 45%; border-right: 1px solid #f0f0f0; border-bottom: none; overflow-y: auto; }
+            .side-reviews { width: 55%; overflow: hidden; }
+        }
+
+        .review-container { flex: 1; overflow-y: auto; margin-bottom: 15px; padding-right: 10px; min-height: 200px; }
+
+        /* Review Images & Preview */
+        .review-img-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .review-thumb { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; cursor: pointer; transition: 0.2s; border: 1px solid #eee; }
+        
+        #previewZone { display: flex; gap: 10px; flex-wrap: wrap; }
+        .preview-item { position: relative; width: 60px; height: 60px; }
+        .preview-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; }
+        .btn-remove-img { position: absolute; top: -5px; right: -5px; background: #ff4d4d; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        .main-carousel-img { height: 250px; object-fit: cover; width: 100%; border-radius: 20px; }
+        @media (min-width: 992px) { .main-carousel-img { height: 300px; } }
+
+        .stars-select { color: #ccc; font-size: 1.2rem; cursor: pointer; }
+        .stars-select i.active { color: #ffc107; }
+
+        #lightbox { display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
+        #lightboxImg { max-width: 90%; max-height: 85%; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-custom text-nowrap">
+        <div class="container-fluid">
+            <a class="logo-center me-4" href="/">COFFEE <span style="color: var(--primary);">HOUSE</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/menu/">Thực đơn</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#">Hệ thống</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/tin-tuc/">Tin tức</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <a class="text-decoration-none dropdown-toggle fw-bold text-success" href="#" data-bs-toggle="dropdown">
+                                <i class="fa-solid fa-circle-user me-1"></i>{{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-user-gear me-2"></i>Tài khoản</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="{% url 'logout' %}" method="post" class="m-0">
+                                        {% csrf_token %}<button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-power-off me-2"></i>Thoát</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-dark btn-sm rounded-pill px-4">Đăng nhập</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold" style="font-family: 'Playfair Display';">Hệ Thống Cửa Hàng</h2>
+            <p class="text-muted">Tìm nơi dừng chân lý tưởng dành cho ní</p>
+        </div>
+        <div class="row g-4" id="storeGrid">
+            {% for cafe in cafes %}
+            <div class="col-lg-4 col-md-6 store-item" id="cafe-{{ cafe.id }}" data-lat="{{ cafe.lat }}" data-lon="{{ cafe.lon }}">
+                <div class="store-card shadow-sm">
+                    <div id="map-{{ cafe.id }}" class="mini-map"></div>
+                    <div class="p-4 text-center">
+                        <h5 class="fw-bold">{{ cafe.tencafe }}</h5>
+                        <p class="mb-1">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= cafe.sao %}
+                                    <i class="fa-solid fa-star text-warning"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-star text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="small text-muted">({{ cafe.sao|default:"0" }})</span>
+                        </p>
+                        
+                        <p class="small text-muted mb-4"><i class="fa-solid fa-location-dot text-danger"></i> {{ cafe.diachi }}</p>
+                        <button class="btn-discover" onclick="openStoreModal('{{ cafe.id }}', '{{ cafe.tencafe|escapejs }}', '{{ cafe.lat }}', '{{ cafe.lon }}')">Xem chi tiết</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="modal fade" id="storeModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content shadow-lg">
+                <div class="panel-grid">
+                    <div class="side-gallery">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="fw-bold m-0" id="mTitle"></h4>
+                            <button type="button" class="btn-close d-lg-none" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div id="carouselCafe" class="carousel slide mb-4" data-bs-ride="carousel">
+                            <div class="carousel-inner" id="mImages"></div>
+                        </div>
+                        <h6 class="fw-bold mb-2 small text-uppercase text-muted">Chỉ đường đến quán</h6>
+                        <div id="routeMapLarge" style="height: 250px; border-radius: 15px;" class="border"></div>
+                    </div>
+
+                    <div class="side-reviews">
+                        <h5 class="fw-bold mb-3 d-none d-lg-block">Đánh giá khách hàng</h5>
+                        <div class="review-container" id="mReviews"></div>
+                        
+                        <div class="review-form-box p-3 bg-white rounded-4 border shadow-sm">
+                            <form id="reviewForm">
+                                {% csrf_token %}
+                                <input type="hidden" name="ma_cafe" id="mId">
+                                {% if user.is_authenticated %}
+                                    <div id="previewZone" class="mb-2"></div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <div class="stars-select" id="starSelector">
+                                            <i class="fa-solid fa-star active" data-v="1"></i><i class="fa-solid fa-star active" data-v="2"></i><i class="fa-solid fa-star active" data-v="3"></i><i class="fa-solid fa-star active" data-v="4"></i><i class="fa-solid fa-star active" data-v="5"></i>
+                                            <input type="hidden" name="so_sao" id="starValue" value="5">
+                                        </div>
+                                        <div class="form-check small">
+                                            <input class="form-check-input" type="checkbox" name="is_anonymous" id="is_anon">
+                                            <label class="form-check-label" for="is_anon">Ẩn danh</label>
+                                        </div>
+                                    </div>
+                                    <textarea name="noi_dung" class="form-control form-control-sm mb-2" rows="2" placeholder="Ní thấy quán sao?..." required></textarea>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <input type="file" id="fileInput" class="d-none" multiple accept="image/*" onchange="handleFiles(this)">
+                                        <label for="fileInput" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-image me-1"></i>Thêm ảnh</label>
+                                        <button type="submit" class="btn btn-success btn-sm px-4 fw-bold">GỬI</button>
+                                    </div>
+                                {% else %}
+                                    <p class="text-center small m-0 py-2">Vui lòng đăng nhập để đánh giá.</p>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="lightbox" onclick="this.style.display='none'"><img src="" id="lightboxImg"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // GIỮ NGUYÊN TOÀN BỘ LOGIC JS CỦA NÍ ĐỂ KHÔNG HỎNG CODE
+        var largeMap, uLat, uLon, selectedFiles = [];
+        const modal = new bootstrap.Modal(document.getElementById('storeModal'));
+
+        function handleFiles(input) {
+            const files = Array.from(input.files);
+            files.forEach(f => {
+                if (!selectedFiles.some(exist => exist.name === f.name)) selectedFiles.push(f);
+            });
+            renderPreview();
+            input.value = ""; 
+        }
+
+        function renderPreview() {
+            const zone = document.getElementById('previewZone');
+            zone.innerHTML = selectedFiles.map((file, i) => `
+                <div class="preview-item">
+                    <img src="${URL.createObjectURL(file)}">
+                    <button type="button" class="btn-remove-img" onclick="removeFile(${i})"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderPreview();
+        }
+
+        function openStoreModal(id, name, lat, lon) {
+            document.getElementById('mTitle').innerText = name;
+            document.getElementById('mId').value = id;
+            selectedFiles = [];
+            if(document.getElementById('previewZone')) document.getElementById('previewZone').innerHTML = "";
+            modal.show();
+        
+            fetch(`/get-store-data/${id}/`).then(res => res.json()).then(data => {
+                let imgHtml = data.images.map((img, i) => `
+                    <div class="carousel-item ${i==0?'active':''}">
+                        <img src="/media/${img}" class="main-carousel-img" onclick="viewFull('/media/${img}')" style="cursor: zoom-in;">
+                    </div>
+                `).join('');
+                document.getElementById('mImages').innerHTML = imgHtml || '<p class="text-center py-5">Chưa có ảnh mô tả</p>';
+        
+                let revHtml = data.reviews.map(r => `
+                    <div class="review-item border-bottom mb-3 pb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold small"><i class="fa-solid fa-circle-user me-1 text-secondary"></i>${r.ten}</span>
+                            <span class="text-warning small">${'★'.repeat(r.sao)}</span>
+                        </div>
+                        <p class="small m-0 text-muted">${r.noidung}</p>
+                        ${r.images && r.images.length > 0 ? `
+                            <div class="review-img-list mt-2 d-flex gap-2 flex-wrap">
+                                ${r.images.map(img => `<img src="/media/${img}" class="review-thumb" onclick="viewFull('/media/${img}')">`).join('')}
+                            </div>
+                        ` : ''}
+                        ${r.phan_hoi_admin ? `
+                            <div class="admin-reply mt-2 p-2 rounded-3" style="background-color: #f8f9fa; border-left: 3px solid var(--primary); margin-left: 15px;">
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="fa-solid fa-reply fa-rotate-180 me-2 text-success" style="font-size: 10px;"></i>
+                                    <span class="fw-bold" style="font-size: 11px; color: var(--primary);">Phản hồi từ quán</span>
+                                </div>
+                                <p class="small m-0 text-dark" style="font-style: italic; line-height: 1.4;">${r.phan_hoi_admin}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+                document.getElementById('mReviews').innerHTML = revHtml || '<p class="text-center text-muted small py-5">Chưa có đánh giá nào.</p>';
+            });
+        
+            setTimeout(() => {
+                if (largeMap) largeMap.remove();
+                largeMap = L.map('routeMapLarge').setView([lat, lon], 15);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(largeMap);
+                if (uLat) {
+                    L.Routing.control({
+                        waypoints: [L.latLng(uLat, uLon), L.latLng(lat, lon)],
+                        createMarker: () => null,
+                        lineOptions: { styles: [{ color: '#1e7f3f', weight: 5 }] }
+                    }).addTo(largeMap);
+                }
+                // Fix lỗi map không render hết mảnh trên mobile khi modal mở
+                largeMap.invalidateSize();
+            }, 500);
+        }
+
+        function viewFull(src) { document.getElementById('lightboxImg').src = src; document.getElementById('lightbox').style.display = 'flex'; }
+
+        const stars = document.querySelectorAll('#starSelector i');
+        stars.forEach(s => s.onclick = function() {
+            let v = parseInt(this.dataset.v);
+            document.getElementById('starValue').value = v;
+            stars.forEach((st, i) => st.classList.toggle('active', i < v));
+        });
+
+        document.getElementById('reviewForm').onsubmit = function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            selectedFiles.forEach(f => formData.append('anh_review', f));
+            fetch('/post-review/', {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value }
+            })
+            .then(async res => {
+                const data = await res.json();
+                if (res.ok && data.status === 'success') { location.reload(); } 
+                else { alert(data.message || "Có lỗi xảy ra!"); }
+            });
+        };
+
+        window.onload = () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(p => {
+                    uLat = p.coords.latitude; uLon = p.coords.longitude;
+                    let items = Array.from(document.querySelectorAll('.store-item'));
+                    items.sort((a, b) => {
+                        let dA = Math.sqrt(Math.pow(uLat - a.dataset.lat, 2) + Math.pow(uLon - a.dataset.lon, 2));
+                        let dB = Math.sqrt(Math.pow(uLat - b.dataset.lat, 2) + Math.pow(uLon - b.dataset.lon, 2));
+                        return dA - dB;
+                    });
+                    items.forEach((el, i) => {
+                        if(i === 0) {
+                            el.querySelector('.store-card').classList.add('nearest-highlight');
+                            el.querySelector('.store-card').insertAdjacentHTML('afterbegin', '<div class="nearest-badge">GẦN NÍ NHẤT</div>');
+                        }
+                        document.getElementById('storeGrid').appendChild(el);
+                    });
+                });
+            }
+            document.querySelectorAll('.store-item').forEach(el => {
+                let id = el.id.split('-')[1];
+                let m = L.map('map-'+id, {zoomControl:false, attributionControl:false}).setView([el.dataset.lat, el.dataset.lon], 16);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(m);
+                L.marker([el.dataset.lat, el.dataset.lon]).addTo(m);
+            });
+        };
+    </script>
+</body>
+</html>

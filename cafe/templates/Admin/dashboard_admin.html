@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chủ Tịch Dashboard | CafeHouse System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --sidebar-color: #0f172a;
+            --accent-gold: #fbbf24;
+            --bg-body: #f8fafc;
+            --white: #ffffff;
+            --text-main: #1e293b;
+            --sidebar-width: 280px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: var(--bg-body); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-main); display: flex; min-height: 100vh; }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            height: 100vh; width: var(--sidebar-width);
+            position: fixed; background: var(--sidebar-color);
+            padding: 2.5rem 1.5rem; display: flex; flex-direction: column; z-index: 1000;
+        }
+        .sidebar-brand { color: var(--white); font-size: 1.6rem; font-weight: 800; margin-bottom: 3rem; display: flex; align-items: center; text-decoration: none; }
+        .sidebar-brand i { color: var(--accent-gold); margin-right: 12px; }
+        .nav-link { color: #94a3b8; padding: 14px 18px; border-radius: 16px; margin-bottom: 8px; transition: 0.3s; font-weight: 600; display: flex; align-items: center; text-decoration: none; }
+        .nav-link i { width: 30px; font-size: 1.2rem; }
+        .nav-link:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+        .nav-link.active { background: var(--accent-gold); color: var(--sidebar-color) !important; box-shadow: 0 10px 20px rgba(251, 191, 36, 0.2); }
+        .logout-section { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); }
+
+        /* --- MAIN CONTENT --- */
+        .main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); padding: 40px 50px; }
+        
+        /* Stat Cards */
+        .stat-card { border: none; border-radius: 30px; padding: 30px; background: var(--white); box-shadow: 0 10px 30px rgba(0,0,0,0.02); transition: 0.3s; height: 100%; }
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-icon { width: 60px; height: 60px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 20px; }
+        
+        .bg-soft-blue { background: #eff6ff; color: #2563eb; }
+        .bg-soft-gold { background: #fffbeb; color: #d97706; }
+        .bg-soft-purple { background: #faf5ff; color: #9333ea; }
+
+        /* Table Style */
+        .table-card { background: var(--white); border-radius: 32px; padding: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); border: 1px solid #f1f5f9; }
+        .table thead th { background: #f8fafc; border: none; color: #64748b; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; padding: 18px 20px; }
+        
+        .branch-info { display: flex; align-items: center; }
+        .branch-icon { width: 48px; height: 48px; background: #fff7ed; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-right: 15px; color: #ea580c; font-size: 1.2rem; flex-shrink: 0; }
+        .branch-name { font-weight: 800; color: #1e293b; font-size: 1.05rem; display: block; }
+        .branch-address { color: #64748b; font-size: 0.85rem; font-weight: 500; display: block; }
+
+        .status-pill { padding: 6px 14px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; background: #f0fdf4; color: #16a34a; }
+        .btn-action { background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 18px; border-radius: 12px; font-weight: 700; font-size: 0.8rem; transition: 0.2s; color: var(--text-main); text-decoration: none; }
+        .btn-action:hover { background: var(--sidebar-color); color: white; }
+        
+        .fw-800 { font-weight: 800; }
+        /* --- RESPONSIVE CHO CHỦ TỊCH --- */
+        @media (max-width: 992px) {
+            /* 1. Reset width và ẩn sidebar hoàn toàn */
+            .sidebar {
+                left: -100%; /* Đẩy hẳn ra ngoài màn hình */
+                width: 280px; /* Giữ nguyên chiều rộng khi hiện ra */
+                transition: all 0.4s ease-in-out;
+                box-shadow: none;
+            }
+        
+            /* 2. Khi active thì mới hiện và đổ bóng */
+            .sidebar.active {
+                left: 0;
+                box-shadow: 10px 0 50px rgba(0,0,0,0.3);
+            }
+        
+            /* 3. Sửa lỗi text bị nhảy: Đảm bảo link không bị wrap */
+            .nav-link {
+                white-space: nowrap; /* Không cho chữ xuống hàng */
+                padding: 15px 20px;
+                font-size: 0.95rem;
+            }
+        
+            /* 4. Main content: Bỏ margin để không bị khoảng trắng bên trái */
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 15px;
+            }
+        
+            /* 5. Header: Tránh đè lên nút Menu */
+            header {
+                margin-top: 10px;
+            }
+        }
+        
+        /* Nút toggle nằm cố định một góc cho dễ bấm */
+        .menu-toggle {
+            display: none; /* Ẩn trên PC */
+            position: sticky;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 992px) {
+            .menu-toggle { display: inline-block; }
+        }
+        /* Thêm đoạn này vào media query mobile */
+@media (max-width: 768px) {
+    /* Ép các cột hiển thị theo dạng khối thay vì hàng ngang nếu cần */
+    .table-card table thead {
+        display: none; /* Ẩn tiêu đề bảng trên mobile cho đỡ rối */
+    }
+    .table-card table td {
+        display: block;
+        text-align: left !important;
+        border: none;
+        padding: 5px 10px;
+    }
+    .branch-info {
+        flex-direction: row; /* Giữ icon và tên nằm ngang */
+    }
+    .branch-name {
+        font-size: 0.9rem;
+        white-space: normal; /* Cho phép xuống dòng nếu tên quá dài */
+    }
+}
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-brand">
+            <i class="fas fa-gem"></i> CAFEHOUSE
+        </a>
+        <nav class="nav flex-column">
+            <a class="nav-link active" href="{% url 'admin_dashboard' %}">
+                <i class="fas fa-chart-pie"></i> Tổng quan
+            </a>
+            <a class="nav-link" href="{% url 'quan_ly_chi_nhanh' %}">
+                <i class="fas fa-store"></i> Quản lý chi nhánh
+            </a>
+            <a class="nav-link" href="{% url 'quan_ly_nhan_vien' %}">
+                <i class="fas fa-users"></i> Nhân sự
+            </a>
+            <a class="nav-link" href="{% url 'category_list' %}">
+                <i class="fas fa-layer-group"></i> Danh mục món
+            </a>
+            <a class="nav-link" href="{% url 'inventory_staff' %}">
+                <i class="fas fa-box-open"></i> Kho nguyên liệu
+            </a>
+            <a class="nav-link" href="{% url 'menu_list' %}">
+                <i class="fas fa-mug-hot"></i> Quản lý thực đơn
+            </a>
+            <a class="nav-link" href="{% url 'revenue' %}">
+                <i class="fas fa-file-invoice-dollar"></i> Doanh thu
+            </a>
+        </nav>
+        <div class="logout-section">
+            <a class="nav-link text-danger" href="{% url 'logout' %}">
+                <i class="fas fa-power-off"></i> Đăng xuất
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i> Menu
+        </button>
+        <header class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h2 class="mb-1 text-dark fw-800">Quản trị Hệ thống</h2>
+                <p class="text-muted mb-0 small fw-600">Ngày cập nhật: <span class="text-dark">{% now "d/m/Y" %}</span></p>
+            </div>
+            <div class="d-flex align-items-center bg-white p-2 pe-4 rounded-pill shadow-sm border border-light">
+                <img src="https://ui-avatars.com/api/?name={{ ten_admin }}&background=0f172a&color=fff" class="rounded-circle me-3" width="45">
+                <div>
+                    <div class="fw-800 small text-dark text-uppercase">{{ ten_admin }}</div>
+                    <small class="text-muted" style="font-size: 10px; font-weight: 700;">CHỦ TỊCH HỆ THỐNG</small>
+                </div>
+            </div>
+        </header>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-soft-blue"><i class="fas fa-users-cog"></i></div>
+                    <p class="text-muted mb-1 fw-600">Tổng nhân sự</p>
+                    <h3 class="fw-800 mb-0">{{ tong_nv }}</h3>
+                    <small class="text-primary fw-bold" style="font-size: 11px;">ĐANG TRỰC HỆ THỐNG</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-soft-purple"><i class="fas fa-map-marked-alt"></i></div>
+                    <p class="text-muted mb-1 fw-600">Mạng lưới chi nhánh</p>
+                    <h3 class="fw-800 mb-0">{{ tong_quan }}</h3>
+                    <small class="text-purple fw-bold" style="font-size: 11px;">CƠ SỞ HOẠT ĐỘNG</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-soft-gold"><i class="fas fa-utensils"></i></div>
+                    <p class="text-muted mb-1 fw-600">Danh mục sản phẩm</p>
+                    <h3 class="fw-800 mb-0 text-warning">{{ tong_mon }}</h3>
+                    <small class="text-warning fw-bold" style="font-size: 11px;">MÓN TRONG THỰC ĐƠN</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-800 mb-0 text-uppercase small" style="letter-spacing: 1px; color: #64748b;">Quy mô nhân sự chi nhánh</h5>
+                <a href="{% url 'quan_ly_nhan_vien' %}" class="btn-action">Quản lý nhân sự <i class="fas fa-users ms-1"></i></a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 45%;">Tên chi nhánh & Địa chỉ</th>
+                            <th class="text-center">Số lượng nhân viên</th>
+                            <th>Trạng thái máy</th>
+                            <th>Xếp hạng quy mô</th>
+                            <th class="text-end">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quan in thong_ke_quan %}
+                        <tr>
+                            <td>
+                                <div class="branch-info">
+                                    <div class="branch-icon"><i class="fas fa-mug-hot"></i></div>
+                                    <div>
+                                        <span class="branch-name">{{ quan.TENCAFE }}</span>
+                                        <span class="branch-address">{{ quan.DIACHI }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-800 text-dark fs-5">{{ quan.so_nv }}</span>
+                                <div class="text-muted" style="font-size: 10px; font-weight: 700;">NHÂN VIÊN</div>
+                            </td>
+                            <td>
+                                <span class="status-pill">
+                                    <i class="fas fa-circle me-1" style="font-size: 7px;"></i> Hoạt động
+                                </span>
+                            </td>
+                            <td>
+                                {% if quan.so_nv > 10 %}
+                                    <span class="badge bg-danger rounded-pill">Quy mô Lớn</span>
+                                {% elif quan.so_nv > 5 %}
+                                    <span class="badge bg-primary rounded-pill">Quy mô Vừa</span>
+                                {% else %}
+                                    <span class="badge bg-secondary rounded-pill">Quy mô Nhỏ</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'quan_ly_nhan_vien' %}" class="btn-action">Chi tiết <i class="fas fa-chevron-right ms-1" style="font-size: 9px;"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center py-5 text-muted">Chưa ghi nhận dữ liệu chi nhánh.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,375 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thực đơn giao hàng | Cafe House</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        :root {
+            --mocha: #1a0f0d;
+            --gold: #c5a880;
+            --cream: #fdfaf7;
+            --green: #1e7f3f;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--cream);
+            color: var(--mocha);
+            overflow-x: hidden;
+        }
+
+        /* NAVBAR */
+        .nav-order {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 12px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-order {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--mocha);
+            letter-spacing: 1px;
+        }
+
+        .nav-link-mini {
+            margin-right: 20px;
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            color: var(--mocha);
+            text-transform: uppercase;
+            transition: var(--transition);
+        }
+
+        .nav-link-mini:hover { color: var(--gold); }
+
+        /* MINI CART */
+        .cart-dropdown {
+            position: absolute;
+            top: 140%;
+            right: 0;
+            width: 320px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            padding: 20px;
+            display: none;
+            z-index: 1100;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .cart-dropdown.active { display: block; animation: slideUp 0.3s ease; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* HERO */
+        .hero-menu {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        /* SIDEBAR */
+        .category-sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 100px;
+        }
+
+        .cat-item {
+            padding: 12px 15px;
+            font-weight: 600;
+            transition: var(--transition);
+            border-radius: 10px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            color: var(--mocha);
+            display: block;
+            text-decoration: none;
+        }
+
+        .cat-item:hover, .cat-item.active {
+            background: var(--mocha);
+            color: white !important;
+            padding-left: 20px;
+        }
+
+        /* PRODUCT CARD */
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .product-img-wrapper {
+            width: 100%;
+            aspect-ratio: 1/1;
+            overflow: hidden;
+            background: #f8f8f8;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .product-img { transform: scale(1.08); }
+
+        .product-body {
+            padding: 18px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            height: 2.5rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .product-price { color: var(--gold); font-weight: 700; font-size: 1.1rem; }
+
+        .btn-add {
+            background: var(--mocha);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            width: 38px;
+            height: 38px;
+            transition: var(--transition);
+        }
+
+        .btn-add:hover { background: var(--green); transform: scale(1.1); }
+
+        /* FOOTER */
+        footer {
+            background: var(--mocha);
+            color: white;
+            padding: 60px 8% 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="nav-order">
+        <a href="{% url 'home' %}" class="logo-order">CafeHouse.</a>
+        <div class="d-flex align-items-center">
+            <a href="{% url 'home' %}" class="nav-link-mini d-none d-md-inline">Trang chủ</a>
+            {% if user.is_authenticated %}
+                <span class="fw-bold small me-3">Hi, {{ user.username }}!</span>
+                <a href="{% url 'logout' %}" class="nav-link-mini text-danger">Thoát</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-link-mini">Đăng nhập</a>
+            {% endif %}
+            
+            <div class="ms-2 position-relative" id="cart-icon-wrapper">
+                <i class="fa-solid fa-bag-shopping fs-4"></i>
+                <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {{ request.session.cart|length|default:0 }}
+                </span>
+
+                <div class="cart-dropdown" id="mini-cart-dropdown">
+                    <h6 class="fw-bold mb-3">Món đã chọn</h6>
+                    <div id="mini-cart-content" class="text-center py-2">
+                        <p class="text-muted small">Giỏ hàng đang chờ bạn!</p>
+                    </div>
+                    <hr class="opacity-10">
+                    <a href="{% url 'view_cart' %}" class="btn btn-dark btn-sm w-100 rounded-3 py-2 fw-bold">XEM GIỎ HÀNG</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-menu">
+        <div>
+            <h1 class="display-5 fw-bold mb-2">Thưởng thức vị ngon tận nơi</h1>
+            <p class="opacity-75">Hạt cà phê nguyên chất & Giao hàng siêu tốc</p>
+        </div>
+    </div>
+
+    <div class="container mb-5">
+        <div class="row g-4">
+            <div class="col-lg-3">
+                <div class="category-sidebar">
+                    <p class="small text-uppercase fw-bold text-muted mb-3" style="letter-spacing: 1px;">Danh mục</p>
+                    <a href="?" class="cat-item {% if not request.GET.madanhmuc %}active{% endif %}">Tất cả món</a>
+                    {% for cat in categories %}
+                    <a href="?madanhmuc={{ cat.madanhmuc }}" class="cat-item {% if request.GET.madanhmuc == cat.madanhmuc|stringformat:'s' %}active{% endif %}">
+                        {{ cat.tendanhmuc }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold m-0">Thực đơn hôm nay</h4>
+                    <span class="badge bg-white text-dark border">{{ products|length }} món</span>
+                </div>
+                
+                <div class="row g-4">
+                    {% for product in products %}
+                    <div class="col-sm-6">
+                        <div class="product-card">
+                            <div class="product-img-wrapper">
+                                <img src="{% if product.hinhanh %}{% static 'HINHANH/' %}{{ product.hinhanh }}{% else %}{% static 'HINHANH/default.jpg' %}{% endif %}" 
+                                     class="product-img" alt="{{ product.tenmon }}">
+                            </div>
+                            <div class="product-body">
+                                <div class="product-title">{{ product.tenmon }}</div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="product-price">{{ product.giatien|floatformat:0 }}đ</span>
+                                    <button class="btn-add add-to-cart-btn" data-id="{{ product.mamon }}">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted">Chưa có món nào ở mục này.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-lg-3">
+                <div class="category-sidebar text-center">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3731/3731214.png" width="50" class="mb-3">
+                    <h6 class="fw-bold">Túi hàng</h6>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'view_cart' %}" class="btn btn-dark w-100 rounded-3 mt-3 py-2">
+                            THANH TOÁN (<span id="cart-count">{{ request.session.cart|length|default:0 }}</span>)
+                        </a>
+                    {% else %}
+                        <p class="small text-muted">Đăng nhập để đặt món!</p>
+                        <a href="{% url 'login' %}" class="btn btn-outline-dark btn-sm w-100">Đăng nhập</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <h4 class="logo-order text-white mb-3">CafeHouse.</h4>
+        <p class="opacity-50 small">© 2026 Cafe House - University of Natural Resources and Environment</p>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Toggle Mini Cart
+            $('#cart-icon-wrapper').on('click', function(e) {
+                e.stopPropagation();
+                $('#mini-cart-dropdown').toggleClass('active');
+            });
+
+            $(document).on('click', function() {
+                $('#mini-cart-dropdown').removeClass('active');
+            });
+
+            // AJAX Add to Cart
+            $('.add-to-cart-btn').on('click', function(e) {
+                e.preventDefault();
+                const productId = $(this).data('id');
+                const btn = $(this);
+
+                $.ajax({
+                    url: "{% url 'add_to_cart' %}",
+                    type: "POST",
+                    data: {
+                        'product_id': productId,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $('#cart-count, #cart-badge').text(response.total_items);
+                            
+                            // Hiệu ứng nút bấm
+                            btn.html('<i class="fa fa-check"></i>').addClass('bg-success');
+                            setTimeout(() => {
+                                btn.html('<i class="fa fa-plus"></i>').removeClass('bg-success');
+                            }, 1000);
+
+                            // Thông báo nhỏ
+                            Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000
+                            }).fire({
+                                icon: 'success',
+                                title: 'Đã thêm vào giỏ!'
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Yêu cầu đăng nhập',
+                            text: 'Vui lòng đăng nhập để tiếp tục đặt món!',
+                            confirmButtonColor: '#1a0f0d'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

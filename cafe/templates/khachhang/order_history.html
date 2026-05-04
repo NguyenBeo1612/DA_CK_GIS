@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử đơn hàng của ba</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #1e7f3f;
+            --secondary: #6c757d;
+            --accent: #ff9f43;
+            --bg: #f4f7f6;
+        }
+
+        body { background-color: var(--bg); font-family: 'Lexend', sans-serif; color: #2d3436; }
+        .history-wrapper { padding: 40px 0; }
+
+        /* Tiêu đề mục */
+        .section-header {
+            display: flex; align-items: center; margin-bottom: 25px; margin-top: 10px;
+        }
+        .section-header span {
+            background: white; padding: 6px 16px; border-radius: 100px;
+            font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--secondary); box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+        .section-header hr { flex: 1; border: 0; border-top: 1px solid #ddd; margin-left: 15px; opacity: 0.5; }
+
+        /* Card chung */
+        .order-card {
+            background: white; border-radius: 28px; padding: 25px;
+            border: none; position: relative; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            text-decoration: none; display: flex; flex-direction: column; color: inherit;
+            height: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        }
+        .order-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.06); }
+
+        /* TRẠNG THÁI ĐANG CHẠY - Nổi bật */
+        .card-active { border-left: 6px solid var(--primary); }
+        .badge-active {
+            background: linear-gradient(135deg, #2ecc71, #1e7f3f);
+            color: white; padding: 6px 15px; border-radius: 12px;
+            font-size: 0.7rem; font-weight: 600; box-shadow: 0 4px 12px rgba(30, 127, 63, 0.2);
+        }
+        .pulse-icon { animation: pulse-green 2s infinite; }
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+
+        /* TRẠNG THÁI HOÀN THÀNH - Nhã nhặn */
+        .card-done { opacity: 0.85; background: #fdfdfd; border: 1px solid #eee; }
+        .badge-done { background: #f1f3f5; color: #888; padding: 6px 15px; border-radius: 12px; font-size: 0.7rem; }
+
+        /* Danh sách món nằm ngang */
+        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 15px 0; }
+        .food-tag {
+            background: #f8f9fa; border: 1px solid #efefef; padding: 6px 14px;
+            border-radius: 14px; font-size: 0.85rem; color: #444; display: flex; align-items: center;
+        }
+        .food-tag i { color: var(--primary); font-size: 0.75rem; margin-right: 8px; }
+
+        /* Giá tiền & ID */
+        .price-text { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+        .order-id { font-size: 0.8rem; font-weight: 600; color: #adb5bd; }
+
+        /* Nút quay lại */
+        .back-btn {
+            width: 50px; height: 50px; border-radius: 18px; background: white;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--primary); box-shadow: 0 10px 20px rgba(0,0,0,0.05); transition: 0.3s;
+        }
+        .back-btn:hover { background: var(--primary); color: white; transform: rotate(-10deg); }
+    </style>
+</head>
+<body>
+
+<div class="history-wrapper">
+    <div class="container">
+        
+        <div class="d-flex align-items-center mb-5">
+            <a href="{% url 'order_home' %}" class="back-btn text-decoration-none"><i class="fa-solid fa-arrow-left-long"></i></a>
+            <div class="ms-4">
+                <h3 class="fw-bold m-0">Đơn hàng của ba</h3>
+                <p class="text-muted small m-0">Tự động cập nhật trạng thái mới nhất</p>
+            </div>
+        </div>
+
+        {% if orders %}
+            <div class="section-header">
+                <span><i class="fa-solid fa-fire-burner me-2 text-warning"></i>Đang thực hiện</span>
+                <hr>
+            </div>
+
+            <div class="row g-4 mb-5">
+                {% for order in orders %}
+                    {% if order.trangthai != 'HOANTHANH' %}
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <a href="{% url 'track_order' order.madon %}" class="order-card card-active">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <span class="order-id">ID: #{{ order.madon }}</span>
+                                <div class="badge-active">
+                                    <i class="fa-solid fa-circle pulse-icon me-1" style="font-size: 0.5rem;"></i>
+                                    {% if order.trangthai == 'DANGXULY' %}Đang làm{% else %}Đang giao{% endif %}
+                                </div>
+                            </div>
+                            
+                            <h5 class="fw-bold mb-1">{{ user.username }}</h5>
+                            <div class="text-muted small mb-3"><i class="fa-regular fa-clock me-1"></i>{{ order.thoigiandat|date:"H:i • d/m/Y" }}</div>
+
+                            <div class="tag-container">
+                                <div class="food-tag">
+                                    <i class="fa-solid fa-utensils"></i>
+                                    {{ order.ds_mon }}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-end mt-auto pt-3 border-top">
+                                <div class="small text-secondary fw-bold text-uppercase" style="font-size: 0.6rem;">Tổng cộng</div>
+                                <div class="price-text">{{ order.tongtien|floatformat:0 }}đ</div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="section-header">
+                <span><i class="fa-solid fa-clock-rotate-left me-2"></i>Đã hoàn tất</span>
+                <hr>
+            </div>
+
+            <div class="row g-4">
+                {% for order in orders %}
+                    {% if order.trangthai == 'HOANTHANH' %}
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <a href="{% url 'track_order' order.madon %}" class="order-card card-done">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <span class="order-id">#{{ order.madon }}</span>
+                                <div class="badge-done">Thành công</div>
+                            </div>
+
+                            <h6 class="fw-bold text-secondary mb-1">{{ user.username }}</h6>
+                            <div class="text-muted small mb-3">{{ order.thoigiandat|date:"d/m/Y" }}</div>
+
+                            <div class="tag-container">
+                                <div class="food-tag" style="opacity: 0.7;">
+                                    <i class="fa-solid fa-check text-secondary"></i>
+                                    {{ order.ds_mon }}
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
+                                <span class="small text-muted">Tổng thanh toán</span>
+                                <div class="fw-bold text-secondary">{{ order.tongtien|floatformat:0 }}đ</div>
+                            </div>
+                        </a>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4" style="font-size: 5rem; opacity: 0.1;"><i class="fa-solid fa-receipt"></i></div>
+                <h4 class="fw-bold">Ba chưa đặt món nào!</h4>
+                <p class="text-muted">Đặt ngay một món ngon để nạp năng lượng ba nhé.</p>
+                <a href="{% url 'order_home' %}" class="btn btn-success rounded-pill px-5 py-3 mt-3 fw-bold" style="background: var(--primary); border: none; box-shadow: 0 10px 20px rgba(30,127,63,0.2);">ĐẶT MÓN NGAY</a>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

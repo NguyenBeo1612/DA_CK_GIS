@@ -1,0 +1,356 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý thực đơn | CafeHouse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --sidebar-color: #0f172a;
+            --accent-gold: #fbbf24;
+            --bg-body: #f1f5f9;
+            --white: #ffffff;
+            --sidebar-width: 280px;
+        }
+        body { background-color: var(--bg-body); font-family: 'Inter', sans-serif; display: flex; margin: 0; min-height: 100vh; }
+
+        /* Sidebar Style */
+        .sidebar {
+            height: 100vh; width: var(--sidebar-width); position: fixed;
+            background: var(--sidebar-color); padding: 2rem 1.2rem;
+            display: flex; flex-direction: column; z-index: 1000;
+        }
+        .sidebar-brand { color: var(--white); font-size: 1.5rem; font-weight: 800; margin-bottom: 2.5rem; display: flex; align-items: center; text-decoration: none; }
+        .sidebar-brand i { color: var(--accent-gold); margin-right: 12px; }
+        .nav-link { color: #94a3b8; padding: 12px 15px; border-radius: 12px; margin-bottom: 5px; transition: 0.3s; font-weight: 500; display: flex; align-items: center; text-decoration: none; }
+        .nav-link i { width: 28px; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.05); color: var(--white); }
+        .nav-link.active { background: var(--accent-gold); color: var(--sidebar-color) !important; font-weight: 700; }
+
+        /* Main Content */
+        .main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); padding: 40px; }
+        .card-custom { background: var(--white); border-radius: 20px; padding: 25px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        
+        /* Table & Components */
+        .item-img-container { width: 55px; height: 55px; border-radius: 14px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #e2e8f0; }
+        .item-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .item-img-container i { color: #cbd5e1; font-size: 1.5rem; }
+        .price-tag { font-weight: 800; color: #059669; background: #ecfdf5; padding: 6px 12px; border-radius: 10px; font-size: 0.9rem; }
+        .badge-cat { background: #eff6ff; color: #2563eb; font-weight: 600; padding: 6px 14px; border-radius: 10px; font-size: 0.75rem; border: 1px solid #dbeafe; }
+        .table thead th { background-color: #f8fafc; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; border: none; padding: 15px 10px; }
+
+        /* Preview Image Style */
+        #imagePreview { width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; display: none; margin-top: 10px; border: 2px solid #f1f5f9; padding: 5px; background: #f8fafc; }
+
+        .filter-section { background: var(--white); border-radius: 15px; padding: 15px 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        @media (max-width: 992px) {
+            /* 1. Reset width và ẩn sidebar hoàn toàn */
+            .sidebar {
+                left: -100%; /* Đẩy hẳn ra ngoài màn hình */
+                width: 280px; /* Giữ nguyên chiều rộng khi hiện ra */
+                transition: all 0.4s ease-in-out;
+                box-shadow: none;
+            }
+        
+            /* 2. Khi active thì mới hiện và đổ bóng */
+            .sidebar.active {
+                left: 0;
+                box-shadow: 10px 0 50px rgba(0,0,0,0.3);
+            }
+        
+            /* 3. Sửa lỗi text bị nhảy: Đảm bảo link không bị wrap */
+            .nav-link {
+                white-space: nowrap; /* Không cho chữ xuống hàng */
+                padding: 15px 20px;
+                font-size: 0.95rem;
+            }
+        
+            /* 4. Main content: Bỏ margin để không bị khoảng trắng bên trái */
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 15px;
+            }
+        
+            /* 5. Header: Tránh đè lên nút Menu */
+            header {
+                margin-top: 10px;
+            }
+        }
+        
+        /* Nút toggle nằm cố định một góc cho dễ bấm */
+        .menu-toggle {
+            display: none; /* Ẩn trên PC */
+            position: sticky;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 992px) {
+            .menu-toggle { display: inline-block; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-brand"><i class="fas fa-gem"></i> CAFEHOUSE</a>
+        <nav class="nav flex-column flex-grow-1">
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+                <i class="fas fa-chart-pie"></i> Tổng quan
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'quan_ly_chi_nhanh' %}active{% endif %}" href="{% url 'quan_ly_chi_nhanh' %}">
+                <i class="fas fa-store"></i> Quản lý chi nhánh
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'quan_ly_nhan_vien' %}active{% endif %}" href="{% url 'quan_ly_nhan_vien' %}">
+                <i class="fas fa-users"></i> Nhân sự hệ thống
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'category_list' %}active{% endif %}" href="{% url 'category_list' %}">
+                <i class="fas fa-layer-group"></i> Quản lý danh mục món
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'menu_list' %}active{% endif %}" href="{% url 'menu_list' %}">
+                <i class="fas fa-mug-hot"></i> Quản lý thực đơn
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'revenue' %}active{% endif %}" href="{% url 'revenue' %}">
+                <i class="fas fa-file-invoice-dollar"></i> Báo cáo doanh thu
+            </a>
+        </nav>
+        <a class="nav-link text-danger mt-auto" href="{% url 'logout' %}"><i class="fas fa-power-off"></i> Đăng xuất</a>
+    </aside>
+
+    <main class="main-content">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i> Menu
+        </button>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'success' %}success{% else %}info{% endif %} alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-800 mb-0">Quản lý thực đơn</h2>
+                <p class="text-muted mb-0">Cập nhật danh sách món ăn, giá cả và hình ảnh menu</p>
+            </div>
+            <button class="btn btn-dark rounded-pill px-4 shadow-lg" onclick="prepareAdd()">
+                <i class="fas fa-plus-circle me-2"></i> Thêm món mới
+            </button>
+        </div>
+
+        <div class="filter-section">
+            <form method="GET" action="{% url 'menu_list' %}" class="row g-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="search" class="form-control bg-light border-0" 
+                               placeholder="Tìm tên món ăn..." value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="category" class="form-select bg-light border-0">
+                        <option value="">-- Tất cả danh mục --</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.0 }}" {% if category_filter == cat.0|stringformat:"s" %}selected{% endif %}>
+                                {{ cat.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100 rounded-3 fw-600">
+                        <i class="fas fa-filter me-2"></i> Lọc Menu
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-custom">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th class="ps-3" width="40%">Thông tin món ăn</th>
+                            <th width="15%">Danh mục</th>
+                            <th width="20%">Đơn giá</th>
+                            <th class="text-end pe-3">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in menu_items %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="item-img-container me-3">
+                                        {% if item.4 %}
+                                            <img src="{% static 'hinhanh/' %}{{ item.4 }}" alt="{{ item.1 }}" onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Image';">
+                                        {% else %}
+                                            <i class="fas fa-mug-hot"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="fw-700 text-dark">{{ item.1 }}</div>
+                                        <small class="text-muted d-block">Mã món: #{{ item.0 }}</small>
+                                        <div class="text-secondary small mt-1" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                            {{ item.6|default:"(Chưa có mô tả)" }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge-cat">{{ item.3|default:"Chưa phân loại" }}</span></td>
+                            <td><span class="price-tag">{{ item.2 }} VNĐ</span></td>
+                            <td class="text-end pe-3">
+                                <button class="btn btn-sm btn-light rounded-3 me-1" 
+                                        onclick="prepareEdit('{{ item.0 }}', '{{ item.1|escapejs }}', '{{ item.2 }}', '{{ item.5 }}', '{{ item.4|default:''|escapejs }}', '{{ item.6|default:''|escapejs }}')"
+                                        title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a href="{% url 'delete_menu_item' item.0 %}" 
+                                   class="btn btn-sm btn-outline-danger rounded-3 border-0" 
+                                   onclick="return confirm('Ní có chắc muốn xóa món {{ item.1 }} không?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-search fa-3x mb-3 opacity-20"></i>
+                                    <p>Không tìm thấy món nào phù hợp với yêu cầu của ní!</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="modalMenu" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="fw-800" id="modalTitle">Thiết lập món ăn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formMenu" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body px-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Tên món ăn</label>
+                            <input type="text" name="ten_mon" class="form-control rounded-3 bg-light border-0 py-2" placeholder="Nhập tên món..." required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Mô tả món ăn</label>
+                            <textarea name="mo_ta" class="form-control rounded-3 bg-light border-0 py-2" rows="3" placeholder="Nhập mô tả món ăn..."></textarea>
+                        </div>
+                        
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Giá bán (VNĐ)</label>
+                                <input type="number" name="gia" class="form-control rounded-3 bg-light border-0 py-2" placeholder="0" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Danh mục</label>
+                                <select name="madanhmuc" class="form-select rounded-3 bg-light border-0 py-2">
+                                    <option value="">-- Chọn loại --</option>
+                                    {% for cat in categories %}
+                                        <option value="{{ cat.0 }}">{{ cat.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Hình ảnh sản phẩm</label>
+                            <input type="file" name="hinh_anh" id="inputImage" class="form-control rounded-3 bg-light border-0 py-2" accept="image/*">
+                            
+                            <div class="text-center">
+                                <img id="imagePreview" src="#" alt="Preview">
+                            </div>
+                            <div id="current_image_text" class="mt-2 small text-center text-muted"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-dark rounded-pill px-5 shadow">Lưu dữ liệu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const formMenu = document.getElementById('formMenu');
+        const modalTitle = document.getElementById('modalTitle');
+        const bsModal = new bootstrap.Modal(document.getElementById('modalMenu'));
+        const inputImage = document.getElementById('inputImage');
+        const imagePreview = document.getElementById('imagePreview');
+        const currentImageText = document.getElementById('current_image_text');
+
+        // Xem trước ảnh khi chọn file mới
+        inputImage.onchange = evt => {
+            const [file] = inputImage.files;
+            if (file) {
+                imagePreview.src = URL.createObjectURL(file);
+                imagePreview.style.display = 'block';
+            }
+        };
+
+        function prepareAdd() {
+            modalTitle.innerText = "Thêm món mới";
+            formMenu.reset();
+            imagePreview.style.display = 'none';
+            currentImageText.innerText = "";
+            formMenu.action = "{% url 'add_menu_item' %}";
+            bsModal.show();
+        }
+
+        function prepareEdit(id, ten, gia, madanhmuc, hinh_anh, mo_ta) {
+            modalTitle.innerText = "Chỉnh sửa: " + ten;
+            formMenu.elements['ten_mon'].value = ten;
+            formMenu.elements['gia'].value = gia;
+            formMenu.elements['madanhmuc'].value = (madanhmuc === 'None' || madanhmuc === '' ? '' : madanhmuc);
+            formMenu.elements['mo_ta'].value = mo_ta;
+            
+            // Xử lý hiển thị ảnh hiện tại khi bấm Sửa
+            if (hinh_anh && hinh_anh !== 'None' && hinh_anh !== '') {
+                imagePreview.src = "{% static 'hinhanh/' %}" + hinh_anh;
+                imagePreview.style.display = 'block';
+                currentImageText.innerHTML = `Ảnh hiện tại: <b class="text-primary">${hinh_anh}</b>`;
+            } else {
+                imagePreview.style.display = 'none';
+                currentImageText.innerText = "Chưa có ảnh.";
+            }
+
+            let urlTemplate = "{% url 'edit_menu_item' 0 %}";
+            formMenu.action = urlTemplate.replace('0', id);
+            bsModal.show();
+        }
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

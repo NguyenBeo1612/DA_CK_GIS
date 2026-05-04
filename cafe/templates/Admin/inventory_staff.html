@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Kho | CafeHouse</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #f3f4f6;
+            --sidebar: #1e293b;
+            --primary: #6366f1;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: #1f2937;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: var(--sidebar);
+            position: fixed;
+            padding: 2rem 1.5rem;
+            color: white;
+            z-index: 1000;
+            transition: 0.4s ease-in-out;
+        }
+
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #818cf8 !important;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #94a3b8;
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 12px;
+            transition: 0.3s;
+            margin-bottom: 5px;
+        }
+
+        .sidebar a:hover, .sidebar a.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main {
+            margin-left: 260px;
+            padding: 2rem;
+            transition: 0.4s;
+        }
+
+        .glass-card {
+            background: white;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+        }
+
+        /* --- STAT BOXES --- */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .stat-icon {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* --- TABLE --- */
+        .table thead th {
+            background: #f8fafc;
+            border: none;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            padding: 1rem;
+        }
+
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .bg-low { background: #fee2e2; color: var(--danger); }
+        .bg-ok { background: #dcfce7; color: var(--success); }
+
+        .btn-primary-custom {
+            background: var(--primary);
+            border: none; border-radius: 12px;
+            padding: 10px 20px; font-weight: 600;
+            transition: 0.3s; color: white;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+            color: white;
+        }
+
+        /* --- PAGINATION --- */
+        .pagination .page-link {
+            border: none;
+            background: #f8fafc;
+            color: var(--sidebar);
+            padding: 10px 18px;
+            border-radius: 12px !important;
+            margin: 0 4px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: var(--primary) !important;
+            color: white !important;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 992px) {
+            .sidebar { left: -260px; }
+            .sidebar.active { left: 0; }
+            .main { margin-left: 0; padding: 1rem; }
+            .mobile-nav-toggle { display: block; }
+        }
+
+        .mobile-nav-toggle {
+            display: none;
+            background: var(--sidebar);
+            color: white; border: none;
+            padding: 10px 15px; border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 99;
+        }
+        .sidebar-overlay.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar">
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-brand">
+            <i class="fas fa-gem me-2"></i> CAFEHOUSE
+        </a>
+        <nav class="nav flex-column">
+            <a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="fas fa-chart-pie"></i> Tổng quan</a>
+            <a class="nav-link" href="{% url 'quan_ly_chi_nhanh' %}"><i class="fas fa-store"></i> Chi nhánh</a>
+            <a class="nav-link" href="{% url 'quan_ly_nhan_vien' %}"><i class="fas fa-users"></i> Nhân sự</a>
+            <a class="nav-link active" href="{% url 'inventory_staff' %}"><i class="fas fa-box-open"></i> Kho nguyên liệu</a>
+            <a class="nav-link" href="{% url 'menu_list' %}"><i class="fas fa-mug-hot"></i> Thực đơn</a>
+            <a class="nav-link" href="{% url 'revenue' %}"><i class="fas fa-file-invoice-dollar"></i> Doanh thu</a>
+        </nav>
+        <div class="mt-auto pt-5">
+            <a class="nav-link text-danger" href="{% url 'logout' %}"><i class="fas fa-power-off"></i> Đăng xuất</a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <button class="mobile-nav-toggle" onclick="toggleSidebar()">
+            <i class="fa-solid fa-bars me-2"></i> Menu
+        </button>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+            <div>
+                <h2 class="fw-800 mb-1">Quản Lý Kho</h2>
+                <p class="text-muted mb-0"><i class="fa-solid fa-location-dot me-1"></i> {{ ten_quan|default:"Hệ thống tổng" }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'export_inventory' %}{% if cafe_id %}?cafe_id={{ cafe_id }}{% endif %}" class="btn btn-success rounded-3 px-3">
+                    <i class="fa-solid fa-file-excel me-2"></i> Xuất báo cáo
+                </a>
+                <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addMaterialModal">
+                    <i class="fa-solid fa-plus me-2"></i> Thêm mới
+                </button>
+            </div>
+        </div>
+
+        <div class="glass-card mb-4">
+            <form method="GET" class="row align-items-end g-3">
+                <div class="col-md-4">
+                    <label class="small fw-bold text-muted mb-2">LỌC THEO CHI NHÁNH</label>
+                    <select name="cafe_id" class="form-select border-0 bg-light p-3" onchange="this.form.submit()" style="border-radius: 12px;">
+                        <option value="">-- Tất cả chi nhánh --</option>
+                        {% for c in cafe_list %}
+                            <option value="{{ c.macafe }}" {% if cafe_id == c.macafe|stringformat:"s" %}selected{% endif %}>
+                                {{ c.tencafe }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #dcfce7; color: var(--success);"><i class="fa-solid fa-check"></i></div>
+                <div><p class="text-muted small mb-0">Hàng ổn định</p><h4 class="fw-bold mb-0">{{ du_hang }}</h4></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: #fee2e2; color: var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div><p class="text-muted small mb-0">Sắp hết hàng</p><h4 class="fw-bold mb-0">{{ sap_het }}</h4></div>
+            </div>
+        </div>
+
+        <div class="glass-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Tên nguyên liệu</th>
+                            <th>Đơn vị</th>
+                            <th>Tồn thực tế</th>
+                            <th>Trạng thái</th>
+                            <th class="text-end">Nhập thêm</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inventory %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-dark">{{ item.tennl }}</div>
+                                <span class="text-muted small">ID: #{{ item.manl }}</span>
+                            </td>
+                            <td><span class="badge bg-light text-dark px-3 py-2">{{ item.donvitinh }}</span></td>
+                            <td><h6 class="fw-bold mb-0">{{ item.soluongton }}</h6></td>
+                            <td>
+                                {% if item.bao_dong == 1 %}
+                                    <span class="badge-status bg-low"><i class="fas fa-circle-exclamation me-1"></i> Cần nhập</span>
+                                {% else %}
+                                    <span class="badge-status bg-ok"><i class="fas fa-check-circle me-1"></i> An toàn</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <form method="POST" action="{% url 'update_stock' %}" class="d-inline-flex gap-2">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="ma_nl" value="{{ item.manl }}">
+                                    <input type="hidden" name="cafe_id" value="{{ cafe_id }}"> 
+                                    <input type="number" name="so_luong_nhap" class="form-control form-control-sm border-0 bg-light" style="width: 80px; border-radius: 8px;" placeholder="0.0" step="0.1" required>
+                                    <button type="submit" class="btn btn-sm btn-dark px-3"><i class="fa fa-plus"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center py-5 text-muted">Không tìm thấy dữ liệu nguyên liệu!</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if inventory.has_other_pages %}
+            <nav class="d-flex justify-content-center mt-4">
+                <ul class="pagination">
+                    {% if inventory.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ inventory.previous_page_number }}{% if cafe_id %}&cafe_id={{ cafe_id }}{% endif %}"><i class="fa-solid fa-chevron-left"></i></a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in inventory.paginator.page_range %}
+                        {% if inventory.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > inventory.number|add:'-3' and num < inventory.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if cafe_id %}&cafe_id={{ cafe_id }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if inventory.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ inventory.next_page_number }}{% if cafe_id %}&cafe_id={{ cafe_id }}{% endif %}"><i class="fa-solid fa-chevron-right"></i></a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="modal fade" id="addMaterialModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0" style="border-radius: 24px;">
+                <div class="modal-header border-0 pt-4 px-4">
+                    <h5 class="fw-bold">Thêm nguyên liệu mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{% url 'add_material' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">TÊN NGUYÊN LIỆU</label>
+                            <input type="text" name="ten_nl" class="form-control bg-light border-0 p-3" placeholder="Sữa đặc, Hạt cafe..." required style="border-radius: 12px;">
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-muted">ĐƠN VỊ TÍNH</label>
+                                <input type="text" name="don_vi" class="form-control bg-light border-0 p-3" placeholder="kg, hộp..." required style="border-radius: 12px;">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-muted">MỨC TỐI THIỂU</label>
+                                <input type="number" step="0.1" name="muc_toi_thieu" class="form-control bg-light border-0 p-3" placeholder="Ví dụ: 2" required style="border-radius: 12px;">
+                            </div>
+                        </div>
+                        <input type="hidden" name="cafe_id" value="{{ cafe_id }}">
+                    </div>
+                    <div class="modal-footer border-0 pb-4 px-4 gap-2">
+                        <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary-custom px-4">Lưu dữ liệu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

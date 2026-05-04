@@ -1,0 +1,194 @@
+{% extends "NhanVien/base_staff.html" %}
+
+{% block content %}
+<style>
+    /* Tổng thể giao diện */
+    .online-wrapper { 
+        height: calc(100vh - 85px); overflow: hidden; 
+        display: flex; flex-direction: column; padding: 20px; background: #f4f7f9; 
+    }
+
+    /* Badge Trạng thái trực tiếp */
+    .live-status {
+        background: #fff; color: #d63031; font-weight: 700; border: 1px solid #fab1a0;
+        padding: 5px 15px; border-radius: 50px; font-size: 0.85rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    /* Thanh lọc (Filter) */
+    .filter-bar { display: flex; gap: 12px; margin-bottom: 20px; }
+    .status-btn { 
+        padding: 10px 22px; border-radius: 12px; border: none; text-decoration: none;
+        background: #fff; font-weight: 600; font-size: 0.9rem; color: #636e72; 
+        box-shadow: 0 3px 6px rgba(0,0,0,0.04); transition: 0.3s;
+    }
+    .status-btn.active { background: #0984e3; color: #fff; }
+
+    /* Lưới hiển thị đơn hàng */
+    .order-grid { 
+        flex-grow: 1; overflow-y: auto; display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; padding-bottom: 20px;
+    }
+
+    /* Thẻ Đơn hàng (Card) */
+    .order-card { 
+        background: #fff; border-radius: 20px; border: none; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05); display: flex; flex-direction: column; 
+        transition: all 0.3s ease; position: relative;
+    }
+    .order-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
+
+    /* Trạng thái viền tùy biến */
+    .border-waiting { border-left: 6px solid #fdcb6e; }
+    .border-completed { border-left: 6px solid #2ecc71; }
+
+    /* Hiệu ứng nhịp đập cho đơn mới */
+    .status-processing { animation: pulse-yellow 2.5s infinite; }
+    @keyframes pulse-yellow {
+        0% { box-shadow: 0 0 0 0 rgba(253, 203, 110, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(253, 203, 110, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(253, 203, 110, 0); }
+    }
+
+    .order-header { padding: 18px; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; align-items: flex-start; }
+    .order-body { padding: 20px; flex-grow: 1; }
+    .order-footer { padding: 15px 20px; background: #fafafa; border-radius: 0 0 20px 20px; border-top: 1px solid #f1f1f1; }
+
+    .badge-process { background: #ffeaa7; color: #d35400; font-weight: 800; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; }
+    .badge-done { background: #dff9fb; color: #0984e3; font-weight: 800; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; }
+
+    .btn-complete { 
+        background: #0984e3; color: white; border: none; font-weight: 700; 
+        border-radius: 12px; padding: 12px; width: 100%; transition: 0.2s; text-transform: uppercase;
+    }
+    .btn-cancel { background: #fff; color: #e17055; border: 1px solid #fab1a0; padding: 12px; border-radius: 12px; }
+</style>
+
+<div class="online-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold mb-0 text-dark">
+            <i class="fa-solid fa-earth-americas text-primary me-2"></i>ĐƠN HÀNG TRỰC TUYẾN
+        </h3>
+        <div class="live-status">
+            <i class="fa-solid fa-circle-dot fa-beat text-danger me-2"></i>
+            Đang chờ: <span id="count-order">{{ orders|length }}</span> đơn
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <a href="?status=DANGXULY" class="status-btn {% if current_status == 'DANGXULY' or not current_status %}active{% endif %}">
+            Đang chờ
+        </a>
+        <a href="?status=HOANTHANH" class="status-btn {% if current_status == 'HOANTHANH' %}active{% endif %}">
+            Đã xong
+        </a>
+        <button class="status-btn" onclick="location.reload()"><i class="fa-solid fa-rotate"></i></button>
+    </div>
+
+    <div class="order-grid" id="order-container">
+        {% for o in orders %}
+        <div class="order-card {% if current_status == 'HOANTHANH' %}border-completed{% else %}border-waiting status-processing{% endif %}" id="card-{{ o.madon }}">
+            <div class="order-header">
+                <div>
+                    <div class="fw-bold text-dark h5 mb-1">Mã đơn: #{{ o.madon }}</div>
+                    <div class="small text-muted">
+                        <i class="fa-regular fa-clock me-1"></i>{{ o.thoigiandat|date:"H:i - d/m/Y" }}
+                    </div>
+                </div>
+                {% if current_status == 'HOANTHANH' %}
+                    <span class="badge-done">HOÀN TẤT</span>
+                {% else %}
+                    <span class="badge-process">CHỜ XỬ LÝ</span>
+                {% endif %}
+            </div>
+
+            <div class="order-body">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+                        <i class="fa-solid fa-user-tag text-primary fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted mb-1 text-uppercase fw-bold" style="font-size: 0.65rem;">Khách hàng</div>
+                        <div class="fw-bold text-dark fs-6">{{ o.tenkh_display }}</div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 rounded-3 p-3 me-3">
+                        <i class="fa-solid fa-wallet text-success fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted mb-1 text-uppercase fw-bold" style="font-size: 0.65rem;">Tổng thanh toán</div>
+                        <div class="h4 fw-bold text-primary mb-0">{{ o.tongtien|floatformat:0 }}<span>đ</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-footer">
+                {% if current_status == 'HOANTHANH' %}
+                    <div class="text-center text-success fw-bold py-2">
+                        <i class="fa-solid fa-circle-check me-2"></i>Đơn hàng đã hoàn thành
+                    </div>
+                {% else %}
+                    <div class="row g-2">
+                        <div class="col-10">
+                            <button class="btn-complete" onclick="completeOrder('{{ o.madon }}')">
+                                <i class="fa-solid fa-check-circle me-2"></i>Xác nhận hoàn thành
+                            </button>
+                        </div>
+                        <div class="col-2">
+                            <button class="btn-cancel w-100" onclick="cancelOrder('{{ o.madon }}')">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center w-100 mt-5 py-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/3358/3358988.png" style="width: 120px; opacity: 0.4; margin-bottom: 20px;">
+            <h5 class="text-muted">Không có đơn hàng nào ở mục này...</h5>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function completeOrder(orderId) {
+        if(confirm(`Ba xác nhận đã pha chế xong đơn #${orderId}?`)) {
+            fetch(`/staff/complete-order/${orderId}/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    const card = document.getElementById(`card-${orderId}`);
+                    if (card) {
+                        card.style.opacity = "0";
+                        card.style.transform = "translateY(20px)";
+                        setTimeout(() => {
+                            card.remove();
+                            updateCount();
+                        }, 400);
+                    }
+                }
+            });
+        }
+    }
+
+    function updateCount() {
+        const countSpan = document.getElementById('count-order');
+        if (countSpan) {
+            let current = parseInt(countSpan.innerText);
+            countSpan.innerText = current > 0 ? current - 1 : 0;
+            if (current - 1 === 0) location.reload();
+        }
+    }
+
+    // Chỉ tự động reload khi ở trang "Đang chờ" để cập nhật đơn mới
+    {% if current_status == 'DANGXULY' or not current_status %}
+    setTimeout(() => { location.reload(); }, 60000);
+    {% endif %}
+</script>
+{% endblock %}

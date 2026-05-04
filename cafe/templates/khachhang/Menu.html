@@ -1,0 +1,399 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thực đơn | CafeHouse</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root {
+            --primary: #1e7f3f;
+            --secondary: #1a0f0d;
+            --gold: #c5a880;
+            --cream: #fdfaf7;
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--cream);
+            margin: 0;
+            color: var(--secondary);
+            scroll-behavior: smooth;
+        }
+
+        /* ================= NAVBAR ================= */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 4px solid var(--primary);
+            padding: 12px 8%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-link {
+            font-weight: 700;
+            font-size: 13px;
+            margin: 0 12px;
+            transition: .3s;
+            text-transform: uppercase;
+            color: var(--secondary) !important;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary) !important;
+            transform: translateY(-2px);
+        }
+
+        .logo-center {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--primary);
+            border: 3px solid var(--primary);
+            padding: 5px 25px;
+            text-decoration: none;
+            letter-spacing: 3px;
+            display: inline-block;
+        }
+
+        /* ================= BANNER ================= */
+        .menu-banner {
+            height: 45vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+            url("https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=2070") center/cover fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            clip-path: ellipse(150% 100% at 50% 0%);
+        }
+
+        .banner-content h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(40px, 8vw, 70px);
+            font-weight: 900;
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+        }
+
+        /* ================= PRODUCT CARD ================= */
+        .product-card {
+            background: var(--white);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .product-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .product-img-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .product-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 1s ease;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.1);
+        }
+
+        .card-body {
+            padding: 24px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-title {
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: var(--secondary);
+        }
+
+        .price-tag {
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .btn-add-cart {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 14px;
+            font-weight: 700;
+            transition: var(--transition);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            width: 100%;
+        }
+
+        .btn-add-cart:hover {
+            background: var(--primary);
+            box-shadow: 0 5px 15px rgba(30, 127, 63, 0.3);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(30px, 5vw, 45px);
+            font-weight: 900;
+            margin-bottom: 40px;
+        }
+
+        /* ================= FOOTER ĐỒNG BỘ ================= */
+        footer {
+            background: var(--secondary);
+            color: white;
+            padding: 80px 8% 40px;
+            border-radius: 80px 80px 0 0;
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 35px;
+            color: var(--gold);
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .footer-social i {
+            font-size: 20px;
+            margin: 0 15px;
+            transition: 0.3s;
+            cursor: pointer;
+            color: white;
+        }
+
+        .footer-social i:hover {
+            color: var(--gold);
+            transform: scale(1.2);
+        }
+
+        /* ================= RESPONSIVE ================= */
+        @media (max-width: 991px) {
+            .navbar-custom { padding: 10px 5%; }
+            .logo-center { font-size: 20px; padding: 5px 15px; letter-spacing: 1px; }
+            .nav-link { margin: 10px 0; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+            .menu-banner { height: 35vh; }
+            footer { border-radius: 40px 40px 0 0; padding: 60px 5% 30px; }
+        }
+        .product-desc {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container-fluid p-0">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <a class="logo-center mx-auto order-lg-2" href="/">CAFEHOUSE</a>
+
+            <div class="collapse navbar-collapse w-100 order-lg-1" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a href="/" class="nav-link">Trang chủ</a></li>
+                    <li class="nav-item"><a href="{% url 'Menu' %}" class="nav-link active" style="color: var(--primary) !important;">Thực đơn</a></li>
+                    <li class="nav-item d-lg-none"><a href="{% url 'news' %}" class="nav-link">Tin tức</a></li>
+                    <li class="nav-item d-lg-none"><a href="{% url 'order_home' %}" class="nav-link">Giao hàng</a></li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto d-lg-none">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'view_cart' %}"><i class="fa-solid fa-cart-shopping me-2"></i>Giỏ hàng</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Đăng xuất</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fa-solid fa-user me-2"></i>Đăng nhập</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="collapse navbar-collapse w-100 order-lg-3 d-none d-lg-block">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'news' %}">Tin tức</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'order_home' %}">Giao hàng</a></li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'view_cart' %}">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i></a></li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fa-solid fa-user"></i></a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="menu-banner animate__animated animate__fadeIn">
+        <div class="banner-content">
+            <h1 class="animate__animated animate__fadeInDown">THỰC ĐƠN</h1>
+            <p class="animate__animated animate__fadeInUp" style="letter-spacing: 3px; font-weight: 300; opacity: 0.9;">THƯỞNG THỨC TINH HOA CÀ PHÊ VIỆT</p>
+        </div>
+    </section>
+
+    <section id="menu-list" class="container py-5 mt-4">
+        <div class="text-center mb-5">
+            <h2 class="section-title animate__animated animate__fadeIn">Hương Vị Đặc Trưng</h2>
+            <div style="width: 60px; height: 3px; background: var(--primary); margin: -20px auto 0;"></div>
+        </div>
+
+        <div class="row g-4">
+            {% for product in products %}
+            <div class="col-lg-3 col-md-4 col-sm-6 animate__animated animate__fadeInUp">
+                <div class="product-card">
+                    <div class="product-img-wrapper">
+                        {% if product.hinhanh %}
+                            <img src="{% static 'HINHANH/' %}{{ product.hinhanh }}" class="product-img" alt="{{ product.tenmon }}">
+                        {% else %}
+                            <img src="https://via.placeholder.com/400x300?text=CafeHouse" class="product-img" alt="No Image">
+                        {% endif %}
+                    </div>
+
+                    <div class="card-body">
+                        <div>
+                            <h5 class="product-title">{{ product.tenmon }}</h5>
+                            <p class="product-desc">
+                                {{ product.mota|linebreaksbr }}
+                            </p>
+                            <span class="price-tag">{{ product.giatien|floatformat:0 }} VNĐ</span>
+                        </div>
+                        <button class="btn-add-cart add-to-cart-btn" data-id="{{ product.mamon }}">
+                            <i class="fa-solid fa-cart-shopping me-2"></i>Thêm vào giỏ
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-muted fs-5">Hiện chưa có sản phẩm nào trong danh mục này.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-logo">Cafe House</div>
+        <p style="font-size: 13px; opacity: 0.7; max-width: 500px; margin: 0 auto 30px;">
+            Hành trình từ những hạt cà phê mọng nước trên cao nguyên đến tách cà phê đậm đà trên tay bạn.
+        </p>
+        
+        <div class="footer-social">
+            <i class="fab fa-facebook-f"></i>
+            <i class="fab fa-instagram"></i>
+            <i class="fab fa-tiktok"></i>
+        </div>
+
+        <div class="row mt-5 pt-4" style="border-top: 1px solid rgba(255,255,255,0.1); text-align: left;">
+            <div class="col-md-6 mb-3">
+                <p class="small mb-1"><i class="fa-solid fa-location-dot me-2 text-gold"></i> 123 Đường ABC, Quận 1, TP. HCM</p>
+                <p class="small"><i class="fa-solid fa-phone me-2 text-gold"></i> Hotline: 1900 1234</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="small mb-1">Giờ mở cửa: 07:00 - 22:00</p>
+                <p class="small mb-0">© 2026 Cafe House. Developed by Bao Anh.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.add-to-cart-btn').on('click', function(e) {
+                e.preventDefault();
+                var productId = $(this).data('id');
+                var btn = $(this);
+
+                $.ajax({
+                    url: "{% url 'add_to_cart' %}", 
+                    type: "POST",
+                    data: {
+                        'product_id': productId,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            Swal.fire({
+                                toast: true,
+                                position: 'top-end',
+                                icon: 'success',
+                                title: 'Đã thêm vào giỏ!',
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+
+                            btn.html('<i class="fa-solid fa-check me-2"></i>Đã thêm').css('background-color', '#1e7f3f');
+                            setTimeout(function() {
+                                btn.html('<i class="fa-solid fa-cart-shopping me-2"></i>Thêm vào giỏ').css('background-color', '#1a0f0d');
+                            }, 1500);
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 403 || xhr.status === 401) {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Yêu cầu đăng nhập',
+                                text: 'Vui lòng đăng nhập để đặt món!',
+                                confirmButtonColor: '#1a0f0d'
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

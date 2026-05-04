@@ -1,0 +1,255 @@
+{% extends "NhanVien/base_staff.html" %}
+
+{% block content %}
+<style>
+    /* 1. Tổng thể: Khóa chặt chiều cao màn hình */
+    .pos-wrapper { 
+        height: calc(100vh - 85px); 
+        overflow: hidden; 
+        display: flex; 
+        padding: 12px; 
+        background: #f1f3f4; 
+        gap: 12px;
+    }
+    
+    /* 2. Cột trái: Danh sách món */
+    .menu-side { flex: 0 0 65%; display: flex; flex-direction: column; height: 100%; }
+    .product-container { flex-grow: 1; overflow-y: auto; padding-right: 8px; }
+    
+    /* Thẻ sản phẩm gọn đẹp */
+    .product-item .card { 
+        border-radius: 12px; 
+        transition: 0.2s; 
+        border: none; 
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        cursor: pointer;
+    }
+    .product-item .card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+    .product-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 12px 12px 0 0; }
+    .product-name { font-size: 0.75rem; font-weight: 700; height: 32px; overflow: hidden; line-height: 1.1; margin-bottom: 2px; color: #333; }
+    .product-price { font-size: 0.8rem; color: #0d6efd; font-weight: 800; }
+
+    /* 3. Cột phải: Hóa đơn */
+    .bill-side { flex: 1; display: flex; flex-direction: column; height: 100%; }
+    .receipt-card { 
+        height: 100%; display: flex; flex-direction: column; 
+        border-radius: 16px; background: #fff; box-shadow: 0 8px 25px rgba(0,0,0,0.06); 
+    }
+    
+    /* Giỏ hàng tự cuộn */
+    #cart-list { flex-grow: 1; overflow-y: auto; background: #fafafa; padding: 10px; border-bottom: 1px solid #eee; }
+    
+    /* Nén khu vực thanh toán để không phải lướt */
+    .checkout-section { padding: 12px; background: #fff; border-radius: 0 0 16px 16px; }
+    .payment-tabs { display: flex; gap: 4px; margin-bottom: 10px; background: #f0f0f0; padding: 4px; border-radius: 10px; }
+    .pay-tab { 
+        flex: 1; padding: 6px 0; text-align: center; cursor: pointer; border-radius: 8px; 
+        font-size: 0.65rem; font-weight: 700; color: #666; transition: 0.2s; 
+    }
+    .pay-tab i { display: block; font-size: 1rem; margin-bottom: 2px; }
+    .pay-tab.active { background: #fff; color: #0d6efd; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+
+    .payment-screen { 
+        height: 100px; padding: 10px; border-radius: 12px; 
+        background: #f8fbff; border: 1px solid #e1eeff; margin-bottom: 10px;
+        display: flex; flex-direction: column; justify-content: center;
+    }
+    
+    .btn-confirm { 
+        padding: 12px !important; font-size: 1.1rem !important; 
+        font-weight: 800 !important; border-radius: 12px !important;
+        text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .qty-btn { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ddd; background: #fff; font-size: 12px; cursor: pointer; }
+
+    /* Scrollbar nhỏ cho đẹp */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 10px; }
+</style>
+
+<div class="pos-wrapper">
+    <div class="menu-side">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0"><i class="fa-solid fa-mug-hot text-primary me-2"></i>{{ branch_name }}</h5>
+            <div class="input-group input-group-sm w-50 shadow-sm">
+                <span class="input-group-text bg-white border-end-0"><i class="fa fa-search text-muted"></i></span>
+                <input type="text" class="form-control border-start-0" placeholder="Tìm món nhanh..." onkeyup="filterProducts(this.value)">
+            </div>
+        </div>
+        
+        <div class="product-container">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-2">
+                {% for p in products %}
+                <div class="col product-item" data-name="{{ p.1|lower }}">
+                    <div class="card h-100" onclick="addToCart('{{ p.0 }}', '{{ p.1 }}', {{ p.2 }})">
+                        <img src="/static/hinhanh/{{ p.3 }}" class="product-img" onerror="this.src='https://placehold.co/200x200?text=MaoCoffee'">
+                        <div class="card-body p-2 text-center">
+                            <div class="product-name">{{ p.1 }}</div>
+                            <div class="product-price">{{ p.2|floatformat:0 }}đ</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="bill-side">
+        <div class="card receipt-card">
+            <div class="p-3 bg-primary text-white d-flex justify-content-between align-items-center" style="border-radius: 16px 16px 0 0;">
+                <span class="fw-bold"><i class="fa fa-shopping-cart me-2"></i>ĐƠN HÀNG</span>
+                <span class="badge bg-white text-primary px-3" id="item-count">0</span>
+            </div>
+            
+            <div id="cart-list">
+                <div class="text-center mt-5 opacity-25">
+                    <i class="fa fa-coffee fa-3x"></i>
+                    <p class="mt-2">Chưa có món nào</p>
+                </div>
+            </div>
+
+            <div class="checkout-section">
+                <input type="text" id="customer_name" class="form-control mb-2 text-center fw-bold border-primary shadow-sm" placeholder="SỐ BÀN / TÊN KHÁCH">
+
+                <div class="payment-tabs">
+                    <div class="pay-tab active" id="tab-cash" onclick="switchScreen('Tiền mặt')"><i class="fa-solid fa-money-bill-1"></i>Tiền mặt</div>
+                    <div class="pay-tab" id="tab-transfer" onclick="switchScreen('Chuyển khoản')"><i class="fa-solid fa-building-columns"></i>ATM</div>
+                    <div class="pay-tab" id="tab-qr" onclick="switchScreen('Mã QR')"><i class="fa-solid fa-qrcode"></i>Quét QR</div>
+                </div>
+
+                <div class="payment-screen shadow-sm">
+                    <div id="screen-cash">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-muted text-uppercase">Khách đưa:</span>
+                            <input type="number" id="cash-in" class="form-control form-control-sm w-50 fw-bold border-primary text-end" placeholder="0" onkeyup="calcChange()">
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small fw-bold text-muted text-uppercase">Tiền thối:</span>
+                            <span class="h5 fw-bold text-danger mb-0" id="cash-return">0đ</span>
+                        </div>
+                    </div>
+
+                    <div id="screen-transfer" style="display:none;">
+                        <div class="text-center small">
+                            <p class="mb-0"><b>MB BANK:</b> 0123456789</p>
+                            <p class="mb-0 text-primary fw-bold">PHAN NGOC BAO ANH</p>
+                            <span class="badge bg-light text-dark border mt-1">Nội dung: MAO [Tên bàn]</span>
+                        </div>
+                    </div>
+
+                    <div id="screen-qr" style="display:none; text-align: center;">
+                        <img id="qr-img" src="" class="img-fluid border rounded" style="max-height: 80px;">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="fw-bold text-muted">TỔNG CỘNG:</span>
+                    <span class="h3 fw-bold text-primary mb-0" id="grand-total">0đ</span>
+                </div>
+
+                <button class="btn btn-primary btn-confirm w-100 shadow" onclick="submitOrder()">XÁC NHẬN ĐƠN</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let cart = [];
+let currentMode = "Tiền mặt";
+
+function switchScreen(mode) {
+    currentMode = mode;
+    document.querySelectorAll('.pay-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(`tab-${mode === 'Tiền mặt' ? 'cash' : mode === 'Chuyển khoản' ? 'transfer' : 'qr'}`).classList.add('active');
+
+    document.getElementById('screen-cash').style.display = 'none';
+    document.getElementById('screen-transfer').style.display = 'none';
+    document.getElementById('screen-qr').style.display = 'none';
+
+    if(mode === 'Tiền mặt') {
+        document.getElementById('screen-cash').style.display = 'block';
+        document.getElementById('cash-in').focus();
+    } else if(mode === 'Chuyển khoản') {
+        document.getElementById('screen-transfer').style.display = 'block';
+    } else {
+        document.getElementById('screen-qr').style.display = 'block';
+        generateQR();
+    }
+}
+
+function addToCart(id, name, price) {
+    let item = cart.find(i => i.id === id);
+    if(item) item.quantity++; else cart.push({id, name, price, quantity: 1});
+    renderCart();
+    if(currentMode === 'Mã QR') generateQR();
+}
+
+function renderCart() {
+    const list = document.getElementById('cart-list');
+    if(cart.length === 0) {
+        list.innerHTML = '<div class="text-center mt-5 opacity-25"><i class="fa fa-coffee fa-3x"></i><p class="mt-2">Chưa có món nào</p></div>';
+        document.getElementById('grand-total').innerText = '0đ';
+        document.getElementById('item-count').innerText = '0';
+        return;
+    }
+    let html = ''; let total = 0;
+    cart.forEach((item, idx) => {
+        total += item.price * item.quantity;
+        html += `<div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-white rounded shadow-sm border-start border-primary border-3">
+            <div style="flex: 1; min-width: 0;"><h6 class="mb-0 small fw-bold text-truncate">${item.name}</h6><small class="text-muted">${item.price.toLocaleString()}đ</small></div>
+            <div class="d-flex align-items-center mx-2">
+                <button class="qty-btn" onclick="updateQty(${idx},-1)">-</button>
+                <span class="mx-2 fw-bold small">${item.quantity}</span>
+                <button class="qty-btn" onclick="updateQty(${idx},1)">+</button>
+            </div>
+            <div class="text-end fw-bold text-primary small" style="min-width:65px">${(item.price * item.quantity).toLocaleString()}đ</div>
+        </div>`;
+    });
+    list.innerHTML = html;
+    document.getElementById('grand-total').innerText = total.toLocaleString() + 'đ';
+    document.getElementById('item-count').innerText = cart.length;
+    calcChange();
+}
+
+function updateQty(idx, delta) {
+    cart[idx].quantity += delta;
+    if(cart[idx].quantity <= 0) cart.splice(idx, 1);
+    renderCart();
+    if(currentMode === 'Mã QR') generateQR();
+}
+
+function calcChange() {
+    const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+    const cin = parseFloat(document.getElementById('cash-in').value) || 0;
+    document.getElementById('cash-return').innerText = (cin >= total ? (cin - total).toLocaleString() : 0) + 'đ';
+}
+
+function generateQR() {
+    const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+    const cus = document.getElementById('customer_name').value || "Khach";
+    document.getElementById('qr-img').src = `https://img.vietqr.io/image/MB-0123456789-compact.png?amount=${total}&addInfo=MAO ${cus}`;
+}
+
+async function submitOrder() {
+    const cus = document.getElementById('customer_name').value;
+    if(!cus) return alert("Ba ơi, nhập tên bàn/khách cái nè!");
+    if(cart.length === 0) return alert("Giỏ hàng đang trống kìa!");
+    const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+    const response = await fetch('', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+        body: JSON.stringify({ cart, total, customer: cus, payment_method: currentMode })
+    });
+    const res = await response.json();
+    if(res.status === 'success') { alert("Đã lưu đơn! Chúc ba ngày mới tốt lành!"); location.reload(); }
+}
+
+function filterProducts(val) {
+    let f = val.toLowerCase();
+    document.querySelectorAll('.product-item').forEach(i => {
+        i.style.display = i.getAttribute('data-name').includes(f) ? "block" : "none";
+    });
+}
+</script>
+{% endblock %}

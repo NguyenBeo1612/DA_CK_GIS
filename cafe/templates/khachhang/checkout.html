@@ -1,0 +1,330 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh Toán | CafeHouse Luxury</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Cormorant+Garamond:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root { --primary: #1e7f3f; --secondary: #1a0f0d; --cream: #fdfaf7; --gold: #c5a880; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--cream); color: var(--secondary); min-height: 100vh; }
+        
+        .checkout-header { 
+            background: linear-gradient(rgba(26,15,13,0.85), rgba(26,15,13,0.85)), 
+                        url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80'); 
+            background-size: cover; color: white; padding: 50px 0; text-align: center; border-radius: 0 0 40px 40px; 
+        }
+        .checkout-header h2 { font-family: 'Cormorant Garamond', serif; letter-spacing: 2px; }
+        .card-custom { background: white; border-radius: 25px; padding: 35px; border: 1px solid rgba(197, 168, 128, 0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
+        .form-label { font-weight: 600; font-size: 0.9rem; color: #444; }
+        .form-control, .form-select { border-radius: 12px; padding: 12px; border: 1px solid #eee; background: #fcfcfc; }
+        .btn-confirm { background: var(--primary); color: white; border: none; padding: 18px; border-radius: 15px; width: 100%; font-weight: 700; transition: 0.4s; }
+        .btn-confirm:hover { background: #155d2e; transform: translateY(-3px); }
+        .location-box { background: #f0f9f4; border: 1px solid #d1e7dd; padding: 15px; border-radius: 15px; margin-bottom: 20px; }
+        .summary-item { border-bottom: 1px dashed #eee; padding: 10px 0; }
+
+        /* PHẦN CHỌN THANH TOÁN MỚI */
+        .payment-option { cursor: pointer; position: relative; }
+        .btn-check:checked + .payment-label {
+            border-color: var(--primary);
+            background-color: #f0f9f4;
+            box-shadow: 0 5px 15px rgba(30, 127, 63, 0.1);
+        }
+        .payment-label {
+            border: 2px solid #f1f1f1;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: 0.3s;
+            background: white;
+        }
+        .payment-label i { font-size: 1.5rem; margin-bottom: 8px; color: #888; }
+        .btn-check:checked + .payment-label i { color: var(--primary); }
+        .btn-check:checked + .payment-label .fw-bold { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="checkout-header mb-5">
+    <div class="container">
+        <h2><i class="fa-solid fa-mug-hot me-3"></i>XÁC NHẬN THANH TOÁN</h2>
+    </div>
+</div>
+
+<div class="container mb-5">
+    {% if cart %}
+        <form action="{% url 'place_order' %}" method="POST" id="checkoutForm">
+            {% csrf_token %}
+            <input type="hidden" name="user_lat" id="user_lat">
+            <input type="hidden" name="user_lon" id="user_lon">
+
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-truck-fast me-2"></i>Thông Tin Giao Hàng</h5>
+                        
+                        <div class="location-box">
+                            <label class="form-label text-success"><i class="fa-solid fa-location-dot me-1"></i> Vị trí của bạn (GPS)</label>
+                            <div id="location-status" class="small fw-bold text-dark mb-1">Đang xác định vị trí...</div>
+                            <div id="address-text" class="small text-muted italic">Đang lấy địa chỉ từ vệ tinh...</div>
+                        </div>
+                        <div id="map-checkout" style="height: 300px; border-radius: 15px;" class="mb-3"></div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tên người nhận</label>
+                                <input type="text" name="hoten" class="form-control" value="{{ user.username }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số điện thoại *</label>
+                                <input type="text" name="sodienthoai" class="form-control" placeholder="090x xxx xxx" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Địa chỉ nhận hàng (⚠️ kiểm tra lại trước khi đặt)
+                            </label>
+                            <textarea id="diachi_giaohang" name="diachi_giaohang" class="form-control" rows="2" required></textarea>
+                        </div>
+
+                        <hr class="my-4 opacity-25">
+                        
+                        <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-store me-2"></i>Chọn Chi Nhánh Phục Vụ</h5>
+                        <div class="mb-3">
+                            <select name="macafe" id="macafe_select" class="form-select" required>
+                                <option value="" data-lat="" data-lon="">-- Chọn quán để tính phí ship --</option>
+                                {% for cafe in cafes %}
+                                    <option value="{{ cafe.0 }}" data-lat="{{ cafe.3 }}" data-lon="{{ cafe.4 }}">
+                                        {{ cafe.1 }} - {{ cafe.2 }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <hr class="my-4 opacity-25">
+
+                        <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-wallet me-2"></i>Phương Thức Thanh Toán</h5>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="pttt" id="pay_cash" value="TIENMAT" checked autocomplete="off">
+                                <label class="payment-label h-100" for="pay_cash">
+                                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                                    <span class="fw-bold small">Tiền mặt</span>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="pttt" id="pay_transfer" value="CHUYENKHOAN" autocomplete="off">
+                                <label class="payment-label h-100" for="pay_transfer">
+                                    <i class="fa-solid fa-building-columns"></i>
+                                    <span class="fw-bold small">Chuyển khoản</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="card-custom sticky-top" style="top: 20px;">
+                        <h5 class="fw-bold mb-4">Tóm tắt đơn hàng</h5>
+                        <div class="order-list mb-4">
+                            {% for key, value in cart.items %}
+                            <div class="summary-item d-flex justify-content-between">
+                                <span>{{ value.tenmon }} x{{ value.soluong }}</span>
+                                <span class="fw-bold">{{ value.total_item_price|floatformat:0 }}đ</span>
+                            </div>
+                            {% endfor %}
+                            
+                            <div class="summary-item d-flex justify-content-between text-danger">
+                                <span>Phí vận chuyển (<span id="distance-val">0</span> km):</span>
+                                <span id="ship-fee-val" class="fw-bold">0đ</span>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-4 pt-2">
+                            <span class="h5 fw-bold">TỔNG CỘNG:</span>
+                            <span class="h3 fw-bold text-success" id="grand-total-val">{{ total_price|floatformat:0 }}đ</span>
+                        </div>
+
+                        <button type="submit" class="btn-confirm text-uppercase shadow">XÁC NHẬN ĐẶT HÀNG</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    {% endif %}
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const baseCartPrice = {{ total_price }};
+let userLat = NaN, userLon = NaN;
+let routeLine;
+let map; 
+let marker;
+
+// ==========================
+// 1. KHỞI TẠO MAP
+// ==========================
+map = L.map('map-checkout').setView([10.762622, 106.660172], 13);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+
+
+// ==========================
+// 2. LẤY GPS
+// ==========================
+navigator.geolocation.getCurrentPosition(
+async (pos) => {
+    userLat = pos.coords.latitude;
+    userLon = pos.coords.longitude;
+
+    console.log("USER:", userLat, userLon);
+
+    document.getElementById("user_lat").value = userLat;
+    document.getElementById("user_lon").value = userLon;
+
+    document.getElementById("location-status").innerHTML = "✅ Đã xác định vị trí";
+
+    map.setView([userLat, userLon], 16);
+
+    if (marker) map.removeLayer(marker);
+    marker = L.marker([userLat, userLon])
+        .addTo(map)
+        .bindPopup("📍 Bạn đang ở đây")
+        .openPopup();
+
+    setTimeout(() => map.invalidateSize(), 200);
+
+    // Lấy địa chỉ
+    try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLon}`);
+        const data = await res.json();
+        document.getElementById("address-text").innerText = data.display_name;
+        document.getElementById("diachi_giaohang").value = data.display_name;
+    } catch (e) {
+        document.getElementById("address-text").innerText = "Không thể lấy địa chỉ.";
+    }
+},
+(error) => {
+    document.getElementById("location-status").innerHTML = "❌ Không lấy được vị trí";
+}
+);
+
+
+// ==========================
+// 3. TÍNH KHOẢNG CÁCH
+// ==========================
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+
+// ==========================
+// 4. CHỌN QUÁN → VẼ ĐƯỜNG
+// ==========================
+document.getElementById("macafe_select").onchange = async function () {
+
+    const selected = this.options[this.selectedIndex];
+    const shopLat = parseFloat(selected.getAttribute("data-lat"));
+    const shopLon = parseFloat(selected.getAttribute("data-lon"));
+
+    console.log("SHOP:", shopLat, shopLon);
+
+    if (!isNaN(userLat) && !isNaN(shopLat)) {
+
+        // xoá đường cũ
+        if (routeLine) map.removeLayer(routeLine);
+
+        try {
+            // ==========================
+            // 4.1 THỬ OSRM (đường thật)
+            // ==========================
+            const url = `https://router.project-osrm.org/route/v1/driving/${userLon},${userLat};${shopLon},${shopLat}?overview=full&geometries=geojson`;
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.routes && data.routes.length > 0) {
+
+                const coords = data.routes[0].geometry.coordinates;
+                const latlngs = coords.map(c => [c[1], c[0]]);
+
+                routeLine = L.polyline(latlngs, {
+                    color: '#1e7f3f',
+                    weight: 5
+                }).addTo(map);
+
+                console.log("✅ OSRM OK");
+
+                map.fitBounds(routeLine.getBounds());
+
+            } else {
+                throw new Error("No route");
+            }
+
+        } catch (err) {
+
+            // ==========================
+            // 4.2 FALLBACK (CHẮC CHẮN CÓ ĐƯỜNG)
+            // ==========================
+            console.log("❌ OSRM lỗi → dùng fallback");
+
+            const midLat = (userLat + shopLat)/2 + 0.002;
+            const midLon = (userLon + shopLon)/2;
+
+            routeLine = L.polyline([
+                [userLat, userLon],
+                [midLat, midLon],
+                [shopLat, shopLon]
+            ], {
+                color: '#1e7f3f',
+                weight: 5
+            }).addTo(map);
+
+            map.fitBounds(routeLine.getBounds());
+        }
+
+        // ==========================
+        // 5. TÍNH PHÍ SHIP
+        // ==========================
+        const km = getDistance(userLat, userLon, shopLat, shopLon);
+
+        let shipFee = 0;
+        if (km < 2) shipFee = 0;
+        else if (km < 5) shipFee = 15000;
+        else shipFee = 15000 + (km - 5) * 5000;
+
+        document.getElementById("distance-val").innerText = km.toFixed(1);
+        document.getElementById("ship-fee-val").innerText = Math.round(shipFee).toLocaleString() + "đ";
+        document.getElementById("grand-total-val").innerText =
+            Math.round(baseCartPrice + shipFee).toLocaleString() + "đ";
+    }
+};
+
+
+// ==========================
+// 6. VALIDATE SUBMIT
+// ==========================
+document.getElementById("checkoutForm").onsubmit = function (e) {
+    if (isNaN(userLat) || isNaN(userLon)) {
+        alert("Vui lòng bật GPS trước khi đặt hàng!");
+        e.preventDefault();
+    }
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,256 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tin tức & Câu chuyện | Cafe House</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root {
+            --mocha: #1a0f0d;
+            --gold: #c5a880;
+            --cream: #fdfaf7;
+            --white: #ffffff;
+            --primary: #1e7f3f; /* Màu xanh chủ đạo từ trang menu */
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--cream);
+            color: var(--mocha);
+            overflow-x: hidden;
+        }
+
+        /* ================= NAVBAR ĐỒNG BỘ ================= */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 4px solid var(--primary);
+            padding: 12px 8%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-link {
+            font-weight: 700;
+            font-size: 13px;
+            margin: 0 12px;
+            transition: .3s;
+            text-transform: uppercase;
+            color: var(--mocha) !important;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary) !important;
+            transform: translateY(-2px);
+        }
+
+        .logo-center {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--mocha);
+            border: 3px solid var(--mocha);
+            padding: 5px 25px;
+            text-decoration: none;
+            letter-spacing: 2px;
+            display: inline-block;
+            transition: 0.3s;
+        }
+        
+        .logo-center:hover {
+            background: var(--mocha);
+            color: white;
+        }
+
+        /* ================= BANNER ================= */
+        .news-banner {
+            height: 45vh;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=2070') center/cover fixed;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; text-align: center;
+        }
+        .news-banner span { text-transform: uppercase; letter-spacing: 5px; font-size: 12px; color: var(--gold); margin-bottom: 10px; }
+        .news-banner h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px, 8vw, 65px); font-style: italic; }
+
+        /* ================= NỘI DUNG ================= */
+        .featured-post { margin-top: -60px; margin-bottom: 80px; }
+        .featured-card { background: var(--white); display: flex; flex-wrap: wrap; box-shadow: 0 30px 60px rgba(0,0,0,0.1); border-radius: 20px; overflow: hidden; }
+        .featured-img { flex: 1.2; min-height: 400px; object-fit: cover; }
+        .featured-content { flex: 1; padding: 50px; display: flex; flex-direction: column; justify-content: center; }
+
+        .news-card { background: transparent; border: none; margin-bottom: 50px; transition: 0.3s; }
+        .img-wrapper { overflow: hidden; margin-bottom: 20px; height: 250px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .news-img { height: 100%; width: 100%; object-fit: cover; transition: 1s; }
+        .news-card:hover .news-img { transform: scale(1.1); }
+
+        .news-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: var(--mocha); margin-bottom: 15px; line-height: 1.2; }
+        .read-more { text-decoration: none; color: var(--gold); font-size: 12px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid var(--gold); padding-bottom: 3px; transition: 0.3s; }
+        .read-more:hover { color: var(--primary); border-color: var(--primary); }
+
+        /* ================= RESPONSIVE ================= */
+        @media (max-width: 991px) {
+            .navbar-custom { padding: 10px 5%; }
+            .logo-center { font-size: 20px; padding: 5px 15px; }
+            .nav-link { margin: 10px 0; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+            .featured-img { flex: 100%; min-height: 300px; }
+            .featured-content { padding: 30px; }
+        }
+
+        footer { background: var(--mocha); color: white; padding: 80px 8% 40px; border-radius: 80px 80px 0 0; text-align: center; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container-fluid p-0">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <a class="logo-center mx-auto order-lg-2" href="/">CAFEHOUSE</a>
+
+            <div class="collapse navbar-collapse w-100 order-lg-1" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a href="/" class="nav-link">Trang chủ</a></li>
+                    <li class="nav-item"><a href="{% url 'Menu' %}" class="nav-link">Thực đơn</a></li>
+                    <li class="nav-item"><a href="{% url 'news' %}" class="nav-link active" style="color: var(--primary) !important;">Tin tức</a></li>
+                    <li class="nav-item d-lg-none"><a href="{% url 'order_home' %}" class="nav-link">Giao hàng</a></li>
+                </ul>
+
+                <ul class="navbar-nav ms-auto d-lg-none">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'view_cart' %}"><i class="fa-solid fa-cart-shopping me-2"></i>Giỏ hàng</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Đăng xuất</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fa-solid fa-user me-2"></i>Đăng nhập</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <div class="collapse navbar-collapse w-100 order-lg-3 d-none d-lg-block">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'order_home' %}">Giao hàng</a></li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'view_cart' %}">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i></a></li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}"><i class="fa-solid fa-user"></i></a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="news-banner animate__animated animate__fadeIn">
+        <span>The Journal</span>
+        <h1 class="animate__animated animate__fadeInUp">Chuyện Của Chúng Tôi</h1>
+    </section>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-11">
+
+                <div class="featured-post animate__animated animate__fadeInUp">
+                    <div class="featured-card">
+                        <img src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?q=80&w=2070" class="featured-img">
+                        <div class="featured-content">
+                            <div style="color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: 2px; margin-bottom: 10px;">HÀNH TRÌNH DI SẢN</div>
+                            <h2 class="news-title" style="font-size: clamp(28px, 4vw, 38px);">Hơi thở cao nguyên trong từng hạt cà phê</h2>
+                            <p class="text-muted">Chúng tôi tin rằng tách cà phê ngon nhất bắt đầu từ sự tôn trọng đất mẹ. Hành trình đi tìm những hạt Arabica và Robusta mọng nhất...</p>
+                            <a href="#" class="read-more" style="width: fit-content;">Tìm hiểu thêm</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                        <div class="news-card">
+                            <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1887" class="news-img"></div>
+                            <div class="news-title">Heritage Space: Nơi thời gian dừng lại</div>
+                            <p class="text-muted small">Kiến trúc vòm và ánh sáng vàng ấm áp tạo nên một không gian tách biệt hoàn toàn với phố thị...</p>
+                            <a href="#" class="read-more">Xem thêm</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                        <div class="news-card">
+                            <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1515823064-d6e0c04616a7?q=80&w=2071" class="news-img"></div>
+                            <div class="news-title">Matcha Uji - Tinh hoa từ Nhật Bản</div>
+                            <p class="text-muted small">Cùng khám phá quy trình đánh trà công phu để tạo nên lớp bọt mịn màng của dòng Matcha...</p>
+                            <a href="#" class="read-more">Xem thêm</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+                        <div class="news-card">
+                            <div class="img-wrapper"><img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?q=80&w=1964" class="news-img"></div>
+                            <div class="news-title">Bánh Croissant: Giòn tan mỗi sáng</div>
+                            <p class="text-muted small">Không gì tuyệt vời hơn một chiếc bánh nướng nóng hổi dùng kèm với một tách cà phê sữa đá.</p>
+                            <a href="#" class="read-more">Xem thêm</a>
+                        </div>
+                    </div>
+                    
+                    {% for post in posts %}
+                    <div class="col-md-4 animate__animated animate__fadeInUp">
+                        <div class="news-card">
+                            <div class="img-wrapper">
+                                {% if post.image %}
+                                    <img src="{{ post.image.url }}" class="news-img">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/400x250" class="news-img">
+                                {% endif %}
+                            </div>
+                            <div class="news-title">{{ post.title }}</div>
+                            <p class="text-muted small">{{ post.content|truncatewords:15 }}</p>
+                            <a href="#" class="read-more">Xem thêm</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <h4 class="fw-bold mb-4" style="font-family: 'Playfair Display';">COFFEE HOUSE</h4>
+                <p class="small" style="color: #aaa;">Kết nối những tâm hồn yêu cà phê qua từng tách trà, hạt đậu.</p>
+                <div class="d-flex gap-3 mt-3">
+                    <a href="#" class="footer-link"><i class="fa-brands fa-facebook fa-xl"></i></a>
+                    <a href="#" class="footer-link"><i class="fa-brands fa-instagram fa-xl"></i></a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <h5 class="mb-4">Liên hệ</h5>
+                <p class="small mb-2"><i class="fa-solid fa-location-dot me-2"></i> 123 Đường ABC, Quận 1, TP. HCM</p>
+                <p class="small mb-2"><i class="fa-solid fa-phone me-2"></i> 1900 1234</p>
+            </div>
+            <div class="col-md-4">
+                <h5 class="mb-4">Giờ mở cửa</h5>
+                <p class="small mb-1">Tất cả các ngày trong tuần</p>
+                <p class="small">07:00 - 22:00</p>
+            </div>
+        </div>
+        <hr class="mt-5" style="border-color: #444;">
+        <p class="text-center small mb-0" style="color: #666;">© 2026 Coffee House. Developed by Bao Anh.</p>
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

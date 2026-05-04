@@ -1,0 +1,301 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng của bạn | CafeHouse</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #1e7f3f;
+            --secondary: #1a0f0d;
+            --cream: #fdfaf7;
+            --gold: #c5a880;
+            --light-gold: #f4eee7;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--cream);
+            color: var(--secondary);
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        .cart-header {
+            background: linear-gradient(rgba(26, 15, 13, 0.9), rgba(26, 15, 13, 0.9)), 
+                        url('https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 0 60px;
+            text-align: center;
+            border-radius: 0 0 50px 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .cart-header h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            font-size: 48px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* CONTAINER CHÍNH */
+        .cart-container {
+            background: white;
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+            border: 1px solid rgba(197, 168, 128, 0.2);
+        }
+
+        /* HÌNH ẢNH SẢN PHẨM */
+        .product-img-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            width: 90px;
+            height: 90px;
+            min-width: 90px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border: 1px solid var(--light-gold);
+            background: #fdfdfd;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        tr:hover .product-img {
+            transform: scale(1.15);
+        }
+
+        .item-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+
+        /* BỘ ĐIỀU KHIỂN SỐ LƯỢNG */
+        .qty-controller {
+            border: 1px solid var(--gold);
+            display: inline-flex;
+            align-items: center;
+            border-radius: 50px;
+            padding: 4px 12px;
+            background: white;
+        }
+        .btn-qty {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .btn-qty:hover {
+            color: var(--primary);
+            transform: scale(1.2);
+        }
+        .qty-amount {
+            min-width: 35px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        /* NÚT XÓA */
+        .btn-remove {
+            color: #b0b0b0;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 5px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .btn-remove:hover { 
+            color: #e74c3c; 
+            transform: translateX(3px);
+        }
+
+        /* SUMMARY CARD */
+        .summary-card {
+            background: white;
+            padding: 35px;
+            border-radius: 30px;
+            border: 1px solid var(--light-gold);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.04);
+            position: sticky;
+            top: 100px;
+        }
+
+        .total-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .btn-checkout {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            width: 100%;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.4s;
+        }
+
+        .btn-checkout:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .empty-cart-state {
+            padding: 60px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="cart-header">
+    <div class="container">
+        <h1 class="mb-2">Túi hàng của bạn</h1>
+        <p class="mb-0 opacity-75 fw-light">Sẵn sàng thưởng thức chưa, <strong>{{ user.username }}</strong>?</p>
+    </div>
+</div>
+
+<div class="container mb-5" style="margin-top: -30px;">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="cart-container">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr class="text-muted small">
+                                <th class="border-0">MÓN ĂN / ĐỒ UỐNG</th>
+                                <th class="text-center border-0">SỐ LƯỢNG</th>
+                                <th class="text-end border-0">THÀNH TIỀN</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, value in cart.items %}
+                            <tr class="cart-item-row">
+                                <td class="py-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="product-img-wrapper me-4">
+                                            {% if value.hinhanh %}
+                                                <img src="{% static 'HINHANH/' %}{{ value.hinhanh }}" class="product-img">
+                                            {% else %}
+                                                <img src="https://via.placeholder.com/150" class="product-img">
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <div class="item-name">{{ value.tenmon }}</div>
+                                            <div class="fw-bold small" style="color: var(--gold)">{{ value.giatien|floatformat:0 }} đ</div>
+                                            <a onclick="confirmRemove('{% url 'update_cart' key 'remove' %}', '{{ value.tenmon }}')" class="btn-remove">
+                                                <i class="fa-regular fa-trash-can me-1"></i> Loại bỏ
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center">
+                                        <div class="qty-controller shadow-sm">
+                                            <a href="{% url 'update_cart' key 'minus' %}" class="btn-qty text-decoration-none">
+                                                <i class="fa-solid fa-minus"></i>
+                                            </a>
+                                            <span class="qty-amount">{{ value.soluong }}</span>
+                                            <a href="{% url 'update_cart' key 'plus' %}" class="btn-qty text-decoration-none">
+                                                <i class="fa-solid fa-plus"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-end fw-bold text-dark">
+                                    {{ value.total_item_price|floatformat:0 }} đ
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="border-0 text-center py-5">
+                                    <div class="empty-cart-state">
+                                        <i class="fa-solid fa-mug-hot fa-4x mb-3" style="color: var(--gold)"></i>
+                                        <h4>Giỏ hàng trống</h4>
+                                        <a href="{% url 'Menu' %}" class="btn btn-outline-dark rounded-pill px-4 mt-3">Quay lại Menu</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="summary-card">
+                <h5 class="mb-4 fw-bold">Tóm tắt đơn hàng</h5>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Tạm tính ({{ cart|length }} món):</span>
+                    <span class="fw-bold">{{ total_price|floatformat:0 }} đ</span>
+                </div>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="text-muted">Giao hàng:</span>
+                    <span class="text-success fw-bold">Miễn phí</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <span class="fw-bold text-uppercase">Tổng cộng:</span>
+                    <span class="total-price">{{ total_price|floatformat:0 }} đ</span>
+                </div>
+                <div class="d-grid">
+                    <a href="{% url 'checkout' %}" class="btn btn-checkout text-uppercase">
+                        Tiến hành thanh toán <i class="fa-solid fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmRemove(url, itemName) {
+        Swal.fire({
+            title: 'Xóa món này?',
+            text: "Bạn chắc chắn muốn bỏ '" + itemName + "' chứ?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#1a0f0d',
+            cancelButtonColor: '#c5a880',
+            confirmButtonText: 'Xóa ngay',
+            cancelButtonText: 'Giữ lại',
+            borderRadius: '20px'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        })
+    }
+</script>
+</body>
+</html>

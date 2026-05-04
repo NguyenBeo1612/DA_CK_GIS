@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập | CafeHouse</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --primary: #1e7f3f;
+            --secondary: #1a0f0d;
+            --bg-page: #f8f5f2;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-page);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            background-image: url('https://www.transparenttextures.com/patterns/coffee-beans.png');
+        }
+
+        .auth-card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 400px;
+            border: none;
+        }
+
+        .auth-logo {
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-size: 28px;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 10px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .auth-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary);
+            text-align: center;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 1px solid #eee;
+            margin-bottom: 15px;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(30, 127, 63, 0.1);
+            background-color: #fff;
+        }
+
+        .btn-auth {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 700;
+            border: none;
+            transition: 0.3s;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-auth:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .error-msg {
+            background: #fff5f5;
+            color: #e53e3e;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid #feb2b2;
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+        }
+
+        .auth-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="auth-card animate__animated animate__zoomIn">
+    <a href="/" class="auth-logo">CAFEHOUSE</a>
+    <p class="auth-title">Chào mừng bạn trở lại</p>
+
+    {% if error %}
+        <div class="error-msg animate__animated animate__shakeX">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> {{ error }}
+        </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <input type="text" name="username" class="form-control" placeholder="Tên đăng nhập" required>
+        </div>
+        
+        <div class="mb-3">
+            <input type="password" name="password" class="form-control" placeholder="Mật khẩu" required>
+        </div>
+        
+        <button type="submit" class="btn-auth">Đăng nhập</button>
+    </form>
+
+    <div class="auth-footer text-muted">
+        Chưa có tài khoản? <a href="{% url 'register' %}">Đăng ký ngay</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý danh mục | CafeHouse</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --sidebar-color: #0f172a;
+            --accent-gold: #fbbf24;
+            --bg-body: #f1f5f9;
+            --white: #ffffff;
+            --sidebar-width: 280px;
+        }
+        body { background-color: var(--bg-body); font-family: 'Inter', sans-serif; display: flex; margin: 0; min-height: 100vh; }
+
+        /* Sidebar Style */
+        .sidebar {
+            height: 100vh; width: var(--sidebar-width); position: fixed;
+            background: var(--sidebar-color); padding: 2rem 1.2rem;
+            display: flex; flex-direction: column; z-index: 1000;
+        }
+        .sidebar-brand { color: var(--white); font-size: 1.5rem; font-weight: 800; margin-bottom: 2.5rem; display: flex; align-items: center; text-decoration: none; }
+        .sidebar-brand i { color: var(--accent-gold); margin-right: 12px; }
+        .nav-link { color: #94a3b8; padding: 12px 15px; border-radius: 12px; margin-bottom: 5px; transition: 0.3s; font-weight: 500; display: flex; align-items: center; text-decoration: none; }
+        .nav-link i { width: 28px; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.05); color: var(--white); }
+        .nav-link.active { background: var(--accent-gold); color: var(--sidebar-color) !important; font-weight: 700; }
+
+        /* Main Content */
+        .main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); padding: 40px; }
+        .card-custom { background: var(--white); border-radius: 20px; padding: 25px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        
+        /* Table Styles */
+        .cat-icon { width: 42px; height: 42px; background: #eff6ff; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #3b82f6; font-size: 1.2rem; }
+        .table thead th { background-color: #f8fafc; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; border: none; padding: 15px 10px; }
+        
+        .badge-count { background: #f1f5f9; color: #475569; font-weight: 600; padding: 5px 12px; border-radius: 8px; font-size: 0.8rem; }
+        @media (max-width: 992px) {
+            /* 1. Reset width và ẩn sidebar hoàn toàn */
+            .sidebar {
+                left: -100%; /* Đẩy hẳn ra ngoài màn hình */
+                width: 280px; /* Giữ nguyên chiều rộng khi hiện ra */
+                transition: all 0.4s ease-in-out;
+                box-shadow: none;
+            }
+        
+            /* 2. Khi active thì mới hiện và đổ bóng */
+            .sidebar.active {
+                left: 0;
+                box-shadow: 10px 0 50px rgba(0,0,0,0.3);
+            }
+        
+            /* 3. Sửa lỗi text bị nhảy: Đảm bảo link không bị wrap */
+            .nav-link {
+                white-space: nowrap; /* Không cho chữ xuống hàng */
+                padding: 15px 20px;
+                font-size: 0.95rem;
+            }
+        
+            /* 4. Main content: Bỏ margin để không bị khoảng trắng bên trái */
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 15px;
+            }
+        
+            /* 5. Header: Tránh đè lên nút Menu */
+            header {
+                margin-top: 10px;
+            }
+        }
+        
+        /* Nút toggle nằm cố định một góc cho dễ bấm */
+        .menu-toggle {
+            display: none; /* Ẩn trên PC */
+            position: sticky;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 992px) {
+            .menu-toggle { display: inline-block; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <a href="{% url 'admin_dashboard' %}" class="sidebar-brand"><i class="fas fa-gem"></i> CAFEHOUSE</a>
+        <nav class="nav flex-column flex-grow-1">
+            <a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="fas fa-chart-pie"></i> Tổng quan</a>
+            <a class="nav-link" href="{% url 'quan_ly_chi_nhanh' %}"><i class="fas fa-store"></i> Quản lý chi nhánh</a>
+            <a class="nav-link" href="{% url 'quan_ly_nhan_vien' %}"><i class="fas fa-users"></i> Nhân sự hệ thống</a>
+            <a class="nav-link active" href="{% url 'category_list' %}"><i class="fas fa-layer-group"></i> Danh mục món</a>
+            <a class="nav-link" href="{% url 'inventory_staff' %}">
+                <i class="fas fa-box-open"></i> Kho nguyên liệu
+            </a>
+            <a class="nav-link" href="{% url 'menu_list' %}">
+                <i class="fas fa-mug-hot"></i> Quản lý thực đơn
+            </a>
+        </nav>
+        <a class="nav-link text-danger mt-auto" href="{% url 'logout' %}"><i class="fas fa-power-off"></i> Đăng xuất</a>
+    </aside>
+
+    <main class="main-content">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i> Menu
+        </button>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show rounded-4 shadow-sm border-0 mb-4">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-800 mb-0">Danh mục thực đơn</h2>
+                <p class="text-muted">Phân loại món ăn giúp khách hàng dễ dàng tìm kiếm</p>
+            </div>
+            <button class="btn btn-dark rounded-pill px-4 shadow" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                <i class="fas fa-plus-circle me-2"></i> Thêm loại mới
+            </button>
+        </div>
+
+        <div class="card-custom">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th class="ps-3" width="15%">Mã Số</th>
+                            <th>Tên Danh Mục</th>
+                            <th class="text-end pe-3">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categories %}
+                        <tr>
+                            <td class="ps-3">
+                                <span class="fw-bold text-muted">#{{ cat.0 }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="cat-icon me-3">
+                                        <i class="fas fa-mug-hot"></i>
+                                    </div>
+                                    <div class="fw-700 text-dark">{{ cat.1 }}</div>
+                                </div>
+                            </td>
+                            <td class="text-end pe-3">
+                                <button class="btn btn-sm btn-light rounded-3 me-1" 
+                                        onclick="editCategory('{{ cat.0 }}', '{{ cat.1 }}')"
+                                        title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                
+                                <a href="{% url 'delete_category' cat.0 %}" 
+                                   class="btn btn-sm btn-outline-danger rounded-3 border-0" 
+                                   onclick="return confirm('Xóa danh mục này sẽ ảnh hưởng đến các món ăn bên trong. Ní chắc không?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-5 text-muted">
+                                <i class="fas fa-folder-open fa-3x mb-3 opacity-25"></i>
+                                <p>Chưa có danh mục nào được tạo.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
+                <div class="modal-header border-0 px-4 pt-4">
+                    <h5 class="fw-800"><i class="fas fa-plus-circle text-warning me-2"></i>Thêm loại mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="{% url 'add_category' %}">
+                    {% csrf_token %}
+                    <div class="modal-body px-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Tên danh mục</label>
+                            <input type="text" name="ten_loai" class="form-control rounded-3 bg-light border-0 py-3" 
+                                   placeholder="VD: Cà phê pha máy, Trà trái cây..." required>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-dark rounded-pill px-5 shadow">Lưu dữ liệu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <form id="hidden-edit-form" method="POST" style="display:none;">
+        {% csrf_token %}
+        <input type="hidden" name="ten_loai" id="edit-name-input">
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function editCategory(id, oldName) {
+            let newName = prompt("Nhập tên mới cho danh mục '" + oldName + "':", oldName);
+            
+            if (newName && newName.trim() !== "" && newName !== oldName) {
+                const form = document.getElementById('hidden-edit-form');
+                const input = document.getElementById('edit-name-input');
+                
+                // Cập nhật action URL khớp với urls.py (path sửa danh mục)
+                form.action = "/admin/categories/edit/" + id + "/";
+                input.value = newName;
+                form.submit();
+            }
+        }
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
